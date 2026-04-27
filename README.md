@@ -1,6 +1,31 @@
 # Probabilistic DRL for Portfolio Risk Analysis
 
-Phase 0 setup for the EEEM004 research project.
+EEEM004 research project: an uncertainty-aware PPO policy for
+capital preservation under regime stress.
+
+## For supervisors — single-file walkthrough
+
+> Run **`Dissertation_Walkthrough.ipynb`** at the repo root.
+>
+> It downloads the SPY test-window dataset, builds the DeepAR-style
+> probabilistic forecaster, prints the uncertainty values, states the
+> mathematics that differentiates the probabilistic agent from the baseline
+> PPO, then loads (or re-runs) the seeded agent results and renders the
+> comparison table and equity-curve plots.
+>
+> The notebook ships **with executed outputs** so you can read it without
+> running anything; for a fresh run, install requirements and choose
+> *Cell → Run All*.
+
+```bash
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+pip install jupyter
+jupyter notebook Dissertation_Walkthrough.ipynb
+```
+
+The interim review draft (Surrey form) lives at
+`reports/generated/interim_review_draft.md`.
 
 ## Quick Start
 

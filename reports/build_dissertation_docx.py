@@ -239,25 +239,26 @@ def build() -> Path:
     add_heading(doc, "Abstract", 1)
     add_para(
         doc,
-        "Reinforcement-learning agents trained on financial price series are typically optimised "
-        "for return rather than for downside-risk control. This dissertation studies whether a "
-        "small, explicit forecast-uncertainty signal — produced by a DeepAR-style probabilistic "
-        "long short-term memory network — can be injected into the standard Proximal Policy "
-        "Optimization (PPO) pipeline to produce an agent whose dominant property is capital "
-        "preservation rather than naive return maximisation. The contribution is twofold. First, "
-        "an uncertainty-aware trading environment is formalised in which trade size is scaled "
-        "by (1 - u_t) with a floor s_min, and risk-on entries are blocked when uncertainty "
-        "exceeds a tenant-set quantile threshold tau. Second, a fully reproducible evaluation "
-        "protocol is defined, with fixed train/validation/test splits over US equity index data "
-        "(2009–2025), three random seeds, and a metric set comprising final value, annualised "
-        "return and volatility, Sharpe ratio, max drawdown, the 95 % Value-at-Risk violation "
-        "rate, and the capital-preservation ratio relative to the running high-watermark. "
-        "On the held-out test window, the probabilistic agent meets the project objective "
-        "(preservation >= 0.95) and finishes above passive buy-and-hold, while the baseline PPO "
-        "is essentially flat. The headline is qualified by an honest reading of max drawdown: "
-        "the baseline only avoids drawdown because it never accumulates gains in the first "
-        "place. All experiments, plots and reports are reproducible from the public repository, "
-        "and a single Jupyter walkthrough notebook is provided for end-to-end inspection.",
+        "Reinforcement-learning agents trained on financial price series are usually tuned for "
+        "return rather than for control of downside risk. This dissertation asks whether a "
+        "small, explicit forecast-uncertainty signal, produced by a DeepAR-style probabilistic "
+        "long short-term memory network, can be added to a standard Proximal Policy "
+        "Optimization (PPO) pipeline so that the resulting agent's dominant property becomes "
+        "capital preservation instead of return-seeking. The contribution has two parts. First, "
+        "an uncertainty-aware trading environment is defined in which trade size is shrunk by "
+        "(1 - u_t) with a floor s_min, and new long-side trades are blocked when uncertainty "
+        "exceeds a quantile threshold tau. Second, a fully reproducible evaluation protocol is "
+        "set out: fixed train, validation and test splits over US equity index data "
+        "(2009 to 2025), three random seeds, and a metric set covering final value, annualised "
+        "return and volatility, Sharpe ratio, maximum drawdown, the 95 % Value-at-Risk "
+        "violation rate, and the capital-preservation ratio against the running high-watermark. "
+        "On the held-out test window the probabilistic agent meets the stated objective "
+        "(preservation >= 0.95) and finishes above passive buy-and-hold. The baseline PPO is "
+        "essentially flat. The headline result comes with a caveat that the discussion takes "
+        "seriously: the baseline only avoids drawdown because it never compounds enough to "
+        "have anything to draw down from. All experiments, plots and reports are reproducible "
+        "from the public repository, and a single Jupyter walkthrough is provided as an "
+        "end-to-end review path.",
     )
     add_para(doc, "Keywords: reinforcement learning, portfolio management, deep learning, "
              "uncertainty quantification, risk management, capital preservation, PPO, DeepAR.",
@@ -280,67 +281,68 @@ def build() -> Path:
     add_heading(doc, "1.1 Background and motivation", 2)
     add_para(
         doc,
-        "Quantitative portfolio management has long been studied as a problem in optimisation "
-        "under uncertainty. The Markowitz (1952) mean–variance framework formalised the "
-        "trade-off between expected return and risk and remains the conceptual baseline against "
-        "which subsequent advances are compared. Over the last decade deep reinforcement "
-        "learning (DRL) has emerged as a flexible alternative: rather than solving an "
-        "analytically constrained optimisation, an agent learns a control policy directly from "
-        "interaction with a market environment. Closely related work — Jiang et al. (2017), Yang "
-        "et al. (2020), and the FinRL library of Liu et al. (2021) — has demonstrated the "
-        "feasibility of policy-gradient methods for portfolio control on equity, ETF and "
-        "cryptocurrency data. ",
+        "Quantitative portfolio management has been studied as an optimisation problem under "
+        "uncertainty for the better part of a century. Markowitz (1952) is the canonical entry "
+        "point: a quadratic optimisation in mean and variance that fixes the trade-off between "
+        "expected return and risk, and that still serves as the conceptual baseline most newer "
+        "methods are measured against. In the last decade deep reinforcement learning (DRL) has "
+        "emerged as a flexible alternative. Rather than solve an analytic optimisation under a "
+        "fixed set of constraints, a DRL agent learns a control policy directly from "
+        "interaction with a market environment. Jiang et al. (2017), Yang et al. (2020) and "
+        "the FinRL library of Liu et al. (2021) have shown that policy-gradient methods can "
+        "be made to work on equities, ETFs and cryptocurrencies.",
     )
     add_para(
         doc,
-        "However, two practical concerns remain under-addressed. First, the typical reward "
-        "signal in this literature emphasises portfolio return, with risk only entering through "
-        "indirect proxies such as volatility-adjusted reward shaping or post-hoc Sharpe "
-        "evaluation. Second, the policies are usually trained on point-estimate features and do "
-        "not see any explicit signal about how confident an underlying forecaster is in its own "
-        "prediction. In a regime where forecast variance is unusually high — for example during "
-        "macro-shock periods — the resulting agent has no native mechanism for restraint.",
+        "Two practical issues with that body of work motivate this dissertation. The first is "
+        "that the reward signal almost always rewards portfolio return, and lets risk in only "
+        "indirectly: through volatility-adjusted reward shaping, or by reading Sharpe off after "
+        "the fact. The second is that the policies are trained on point-estimate features and "
+        "are never told how confident an underlying forecaster is in its own prediction. When "
+        "the market enters a regime where forecast variance spikes, for example during a macro "
+        "shock, the agent has no native way to be cautious.",
     )
 
     add_heading(doc, "1.2 Problem statement", 2)
     add_para(
         doc,
-        "This dissertation addresses the following question: can an explicit forecast-"
-        "uncertainty signal, computed from a probabilistic recurrent network, be injected into "
-        "a standard PPO pipeline so that the resulting agent preserves capital — formalised as "
-        "the ratio of final portfolio value to the running high-watermark — under regime "
-        "stress, while remaining competitive with passive benchmarks in calm regimes?",
+        "The question this dissertation addresses can be put plainly. If we compute an "
+        "explicit forecast-uncertainty signal from a probabilistic recurrent network and feed "
+        "it into a standard PPO pipeline, can the resulting agent preserve capital, defined "
+        "as the ratio of terminal portfolio value to the running high-watermark, through a "
+        "test window that contains real shocks, while still keeping up with passive benchmarks "
+        "in calm periods?",
     )
 
     add_heading(doc, "1.3 Aims and objectives", 2)
     add_bullets(doc, [
-        "O1. Investigate whether explicit forecast uncertainty, modelled with a DeepAR-style probabilistic LSTM, can be injected into a PPO policy to produce risk-aware portfolio behaviour on US equity index data.",
-        "O2. Determine whether such an uncertainty-aware agent can preserve at least 95 % of its high-watermark portfolio value across a held-out test window that includes shock periods, relative to a baseline PPO and to passive buy-and-hold and all-cash benchmarks.",
-        "O3. Establish a reproducible evaluation protocol — fixed splits, fixed seeds, scripted artifacts, and a shared metric set — that supports honest comparison between agents.",
-        "O4. Recommend, on the strength of the above evidence, when an uncertainty signal should enter a portfolio control loop, including its failure modes and conditions under which it does not help.",
+        "O1. Find out whether an explicit forecast-uncertainty signal, modelled with a DeepAR-style probabilistic LSTM, can be plugged into a PPO policy to make it behave with risk in mind on US equity index data.",
+        "O2. Test, on a held-out window that contains real shocks, whether the resulting agent preserves at least 95 % of its high-watermark portfolio value, both against a baseline PPO and against passive buy-and-hold and all-cash benchmarks.",
+        "O3. Pin down a reproducible evaluation protocol of fixed splits, fixed seeds, scripted artifacts and a shared metric set, so that any comparison made in this dissertation is genuinely like-for-like.",
+        "O4. Take a position, on the strength of the above, on when an uncertainty signal earns a place in a portfolio control loop, and equally important, when it does not.",
     ])
 
     add_heading(doc, "1.4 Contributions", 2)
     add_bullets(doc, [
-        "An uncertainty-aware trading environment in which trade size is scaled by (1 - u_t) with a floor s_min, and risk-on entries are blocked when uncertainty exceeds a quantile threshold tau (Section 3.5).",
-        "An end-to-end reproducible evaluation protocol with fixed splits, three random seeds, and a metric set centred on the capital-preservation ratio relative to the running high-watermark (Section 3.8).",
-        "A public, runnable Jupyter walkthrough that loads the dataset, fits the probabilistic forecaster, prints the uncertainty values, executes both agents, and renders the comparison table and equity curves with embedded outputs (Chapter 5; Appendix A).",
-        "An honest interpretation of the headline results that flags max-drawdown as a misleading single metric in this comparison and argues for the preservation ratio as the faithful comparator for the stated objective (Section 6.2).",
+        "An uncertainty-aware trading environment in which the per-step trade size is shrunk by (1 - u_t) with a floor s_min, and new long-side trades are blocked when uncertainty exceeds the quantile threshold tau (Section 3.5).",
+        "A reproducible end-to-end evaluation protocol with fixed splits, three random seeds and a metric set centred on the capital-preservation ratio against the running high-watermark (Section 3.7).",
+        "A public, runnable Jupyter walkthrough that loads the dataset, trains the probabilistic forecaster, prints the uncertainty values, runs both agents and renders the comparison table and equity curves with embedded outputs (Chapter 5 and Appendix A).",
+        "A discussion that calls out the maximum-drawdown comparison as misleading on its own and argues for the preservation ratio as the metric that actually matches the stated objective (Section 6.2).",
     ])
 
     add_heading(doc, "1.5 Dissertation structure", 2)
     add_para(
         doc,
-        "Chapter 2 reviews modern portfolio theory, the policy-gradient family of RL algorithms "
-        "with a focus on PPO, prior DRL work in finance, probabilistic forecasting with "
-        "DeepAR-style networks, and methods for uncertainty quantification in deep learning. "
-        "Chapter 3 formalises the problem as a Markov decision process, derives the "
-        "probabilistic forecaster, defines the trading environment, and states the precise "
-        "mathematical difference between the baseline and the probabilistic agent. Chapter 4 "
-        "describes the implementation, including the data pipeline, training procedure and "
-        "reporting layer. Chapter 5 presents the experimental setup and results on the held-out "
-        "test window. Chapter 6 discusses interpretation, trade-offs and limitations. Chapter 7 "
-        "concludes and outlines future work.",
+        "Chapter 2 reviews the relevant background: modern portfolio theory, the policy-"
+        "gradient family of RL algorithms (with PPO singled out), prior DRL work in finance, "
+        "probabilistic forecasting with DeepAR-style networks, and methods for uncertainty "
+        "quantification in deep learning. Chapter 3 sets the problem out as a Markov decision "
+        "process, derives the probabilistic forecaster, defines the trading environment and "
+        "states the exact mathematical difference between the baseline and the probabilistic "
+        "agent. Chapter 4 covers the implementation: data pipeline, training procedure and "
+        "reporting layer. Chapter 5 presents the experimental setup and the results on the "
+        "held-out test window. Chapter 6 reads the results carefully, including the trade-offs "
+        "and the limits of the evidence. Chapter 7 concludes and points at future work.",
     )
     page_break(doc)
 
@@ -350,24 +352,24 @@ def build() -> Path:
     add_heading(doc, "2.1 Modern portfolio theory and capital preservation", 2)
     add_para(
         doc,
-        "Markowitz (1952) framed portfolio choice as a quadratic optimisation problem under a "
-        "joint return-and-variance objective and established the efficient frontier as the "
-        "locus of admissible mean–variance trade-offs. Subsequent literature broadened this to "
-        "include conditional value-at-risk, drawdown control and dynamic rebalancing. "
-        "Capital preservation — operationalised here as the ratio of terminal value to the "
-        "running high-watermark — is a different objective: it penalises any path that fails "
-        "to retain the gains it has already realised. This framing is closer to the practical "
-        "concerns of long-horizon investors and risk-constrained mandates than to pure mean–"
-        "variance optimisation.",
+        "Markowitz (1952) framed portfolio choice as a quadratic optimisation problem in mean "
+        "and variance and produced the efficient frontier, the locus of admissible mean-"
+        "variance trade-offs. The literature has since extended this in many directions: "
+        "conditional value-at-risk, drawdown control and dynamic rebalancing among them. "
+        "Capital preservation, as I use the term in this dissertation, is a different objective "
+        "again. I define it as the ratio of terminal portfolio value to the running high-"
+        "watermark. The metric penalises any path that fails to keep the gains it has already "
+        "realised, which is closer to how a long-horizon investor or a risk-constrained mandate "
+        "actually thinks about performance than mean-variance is.",
     )
 
     add_heading(doc, "2.2 Reinforcement learning fundamentals", 2)
     add_para(
         doc,
-        "An RL problem is a Markov decision process (S, A, P, R, gamma) consisting of a state "
-        "space, an action space, a transition kernel, a reward function and a discount factor. "
-        "Sutton & Barto (2018) provide the canonical treatment. The objective is to learn a "
-        "policy pi(a|s) that maximises the expected discounted return.",
+        "An RL problem is a Markov decision process (S, A, P, R, gamma): a state space, an "
+        "action space, a transition kernel, a reward function and a discount factor. Sutton "
+        "and Barto (2018) is the canonical treatment. The objective is to learn a policy "
+        "pi(a|s) that maximises the expected discounted return.",
     )
     add_equation(
         doc,
@@ -379,11 +381,11 @@ def build() -> Path:
     add_heading(doc, "2.3 Policy-gradient methods and PPO", 2)
     add_para(
         doc,
-        "Policy-gradient methods directly parameterise the policy and ascend the gradient of "
-        "the objective with respect to its parameters. Vanilla policy gradient suffers from "
-        "high variance and instability; trust-region methods address this by constraining the "
-        "step size. Schulman et al. (2017) introduced Proximal Policy Optimization (PPO), which "
-        "approximates a trust region via a clipped surrogate objective.",
+        "Policy-gradient methods parameterise the policy directly and ascend the gradient of "
+        "the objective with respect to its parameters. Vanilla policy gradient is high-"
+        "variance and unstable. Trust-region methods solve this by constraining the size of "
+        "each update. Schulman et al. (2017) introduced Proximal Policy Optimization (PPO), "
+        "which approximates a trust region with a simpler clipped surrogate objective.",
     )
     add_equation(
         doc,
@@ -393,33 +395,32 @@ def build() -> Path:
     )
     add_para(
         doc,
-        "PPO has become the default policy-gradient choice in finance applications for two "
-        "reasons: it is robust to hyper-parameter choice, and reliable open-source "
-        "implementations exist, notably Stable-Baselines3 (Raffin et al., 2021). Both are used "
-        "in this dissertation.",
+        "PPO has become the default policy-gradient choice for finance applications for two "
+        "practical reasons. It is forgiving with respect to hyper-parameter choice, and it is "
+        "available in mature open-source form, notably in Stable-Baselines3 (Raffin et al., "
+        "2021). I use both in this dissertation.",
     )
 
     add_heading(doc, "2.4 Reinforcement learning for portfolio management", 2)
     add_para(
         doc,
         "Jiang et al. (2017) propose an end-to-end DRL framework for cryptocurrency portfolio "
-        "selection, using a CNN-based feature extractor and a policy directly over portfolio "
-        "weights. Yang et al. (2020) extend this to US equities with an ensemble of A2C, PPO "
-        "and DDPG agents, training on different market regimes. Liu et al. (2021) introduce "
-        "FinRL, a library that standardises gym-like trading environments and exposes a "
-        "single API for multiple algorithms. None of these contributions inject explicit "
-        "forecast uncertainty into the policy state or use the uncertainty as a trading guard. "
-        "That gap is the focus of the present dissertation.",
+        "selection, with a CNN feature extractor and a policy that outputs portfolio weights "
+        "directly. Yang et al. (2020) extend the idea to US equities using an ensemble of A2C, "
+        "PPO and DDPG agents trained across different regimes. Liu et al. (2021) bundle this "
+        "kind of work into the FinRL library, which standardises gym-style trading "
+        "environments and exposes one API across several algorithms. None of these papers "
+        "inject an explicit forecast-uncertainty signal into the policy state, and none use "
+        "uncertainty as a trading guard. That is the gap this dissertation addresses.",
     )
 
     add_heading(doc, "2.5 Probabilistic time-series forecasting", 2)
     add_para(
         doc,
-        "Salinas et al. (2020) propose DeepAR, an autoregressive recurrent neural network "
-        "trained to maximise the likelihood of the observed data under a chosen output "
-        "distribution. The architectural backbone is a stacked long short-term memory (LSTM) "
-        "network (Hochreiter & Schmidhuber, 1997). For a Gaussian output, the network emits "
-        "(mu, log sigma^2) at each step.",
+        "Salinas et al. (2020) propose DeepAR, an autoregressive recurrent network trained to "
+        "maximise the likelihood of the observed data under a chosen output distribution. The "
+        "backbone is a stacked long short-term memory network (Hochreiter and Schmidhuber, "
+        "1997). With a Gaussian output the network emits (mu, log sigma^2) at each step.",
     )
     add_equation(
         doc,
@@ -431,25 +432,26 @@ def build() -> Path:
     add_heading(doc, "2.6 Uncertainty estimation in deep learning", 2)
     add_para(
         doc,
-        "Two practical techniques dominate the literature on uncertainty in neural networks. "
-        "Deep ensembles (Lakshminarayanan, Pritzel & Blundell, 2017) train several independent "
-        "networks and use their predictive disagreement as an uncertainty proxy. Monte-Carlo "
-        "dropout (Gal & Ghahramani, 2016) interprets dropout at inference time as a "
-        "variational approximation to a Bayesian posterior. The DeepAR likelihood used in this "
-        "dissertation is a third route: the network directly emits a predictive variance, "
-        "which is trained by the Gaussian NLL above. This is the most parsimonious choice for "
-        "the present setup because the uncertainty consumed by the policy is one-dimensional "
-        "and continuous.",
+        "Two practical techniques dominate the uncertainty-in-neural-networks literature. "
+        "Deep ensembles (Lakshminarayanan, Pritzel and Blundell, 2017) train several "
+        "independent networks and use their disagreement as an uncertainty proxy. Monte-Carlo "
+        "dropout (Gal and Ghahramani, 2016) treats dropout at inference time as a variational "
+        "approximation to a Bayesian posterior. The DeepAR-style likelihood I use in this "
+        "dissertation is a third route. The network emits a predictive variance directly, "
+        "trained by the Gaussian NLL in Equation 2.3. I picked it over ensembles or MC-"
+        "dropout because the policy only needs a one-dimensional, continuous uncertainty "
+        "summary, and a single Gaussian head delivers that with the smallest amount of moving "
+        "machinery.",
     )
 
     add_heading(doc, "2.7 Gap and positioning", 2)
     add_para(
         doc,
-        "The gap addressed in this dissertation is the absence, in prior DRL-for-finance work, "
-        "of an explicit, model-based uncertainty signal that (i) augments the policy state and "
-        "(ii) is also used as a hard guard on risk-on actions. Section 3.7 makes the precise "
-        "mathematical difference from a standard PPO baseline explicit; Section 5 evaluates "
-        "the difference empirically.",
+        "Putting all of the above together, the gap I want to close is the absence, in prior "
+        "DRL-for-finance work, of an explicit, model-based uncertainty signal that does two "
+        "things at once: it goes into the policy state, and it acts as a hard guard on new "
+        "risk-on actions. Section 3.5 sets out the mathematical difference from a standard "
+        "PPO baseline. Chapter 5 measures whether the difference earns its keep.",
     )
     page_break(doc)
 
@@ -459,13 +461,14 @@ def build() -> Path:
     add_heading(doc, "3.1 Problem formulation", 2)
     add_para(
         doc,
-        "The trading task is formalised as a Markov decision process. The state at step t is a "
+        "I cast the trading task as a Markov decision process. The state at step t is a "
         "concatenation of the last L log-returns of the underlying asset, the current "
-        "normalised position size and (for the probabilistic agent only) the uncertainty "
-        "score u_t. The action is a scalar a_t in [-1, 1] that, after scaling by the "
-        "configurable max trade fraction f_max, prescribes a fraction of cash to deploy on the "
-        "buy side or to liquidate on the sell side. Transactions are subject to a "
-        "transaction-cost rate c. The reward is the scaled log-growth of portfolio value.",
+        "normalised position size, and, for the probabilistic agent only, the uncertainty "
+        "score u_t. The action is a scalar a_t in [-1, 1]. After scaling by a configurable "
+        "max trade fraction f_max it prescribes either a fraction of cash to deploy on the "
+        "buy side or a fraction of position to liquidate on the sell side. Trades incur a "
+        "linear transaction cost at rate c. The per-step reward is the scaled log-growth of "
+        "portfolio value.",
     )
     add_equation(
         doc,
@@ -477,13 +480,13 @@ def build() -> Path:
     add_heading(doc, "3.2 Data and preprocessing", 2)
     add_para(
         doc,
-        "Daily adjusted close prices are sourced from Yahoo Finance via the yfinance Python "
-        "package. The Phase-1 universe is SPY (S&P 500 ETF), with QQQ queued for the Phase-2 "
-        "robustness work. Two pre-defined shock windows — the COVID crash (February to June "
-        "2020) and the onset of the Russia–Ukraine war (February to September 2022) — are "
-        "fixed in the protocol and used in stress evaluation. The continuous price series is "
-        "transformed into log-returns; the LSTM forecaster operates on supervised sequences of "
-        "length L = 20.",
+        "Daily adjusted close prices come from Yahoo Finance via the yfinance Python package. "
+        "The Phase-1 universe is SPY (the S&P 500 ETF). QQQ and a small basket of sector ETFs "
+        "are queued for the Phase-2 robustness study. Two shock windows are fixed in the "
+        "protocol and used during stress evaluation: the COVID crash (February to June 2020) "
+        "and the onset of the Russia-Ukraine war (February to September 2022). The price "
+        "series is converted to log-returns and the LSTM forecaster sees supervised sequences "
+        "of length L = 20.",
     )
     add_equation(
         doc,
@@ -496,7 +499,8 @@ def build() -> Path:
     add_para(
         doc,
         "The forecaster is a two-layer LSTM with hidden dimension 32, followed by two linear "
-        "heads emitting the predictive mean and the log of the predictive variance:",
+        "heads. One head emits the predictive mean, the other emits the log of the predictive "
+        "variance:",
     )
     add_equation(
         doc,
@@ -506,15 +510,15 @@ def build() -> Path:
     )
     add_para(
         doc,
-        "Training uses the Gaussian NLL loss in Equation 2.3 and the Adam optimiser at "
+        "Training uses the Gaussian NLL loss from Equation 2.3, optimised with Adam at "
         "learning rate 1e-3 for 20 epochs.",
     )
 
     add_heading(doc, "3.4 Uncertainty score", 2)
     add_para(
         doc,
-        "At inference, the predictive standard deviation is min–max normalised across the test "
-        "window into a unit-interval uncertainty score u_t in [0, 1]:",
+        "At inference time the predictive standard deviation is min-max normalised across the "
+        "test window into a unit-interval uncertainty score u_t in [0, 1]:",
     )
     add_equation(
         doc,
@@ -527,10 +531,10 @@ def build() -> Path:
     add_para(
         doc,
         "Both agents share the same gymnasium-compatible environment. The only mathematical "
-        "difference is two extra terms in the trade-size computation that the probabilistic "
-        "agent uses. With cash balance B_t, max trade fraction f_max = 0.10, raw policy "
-        "action a_t in [-1, 1], uncertainty u_t in [0, 1], threshold tau equal to the 80th "
-        "percentile of u_t and minimum scale s_min = 0.10, the baseline trade size is",
+        "difference between them is two extra terms in the trade-size computation that the "
+        "probabilistic agent uses. With cash balance B_t, max trade fraction f_max = 0.10, "
+        "raw policy action a_t in [-1, 1], uncertainty u_t in [0, 1], threshold tau set at the "
+        "80th percentile of u_t, and minimum scale s_min = 0.10, the baseline trade size is",
     )
     add_equation(
         doc,
@@ -548,10 +552,10 @@ def build() -> Path:
     add_para(
         doc,
         "Equation 3.6 is the mathematical contribution of this dissertation. The first extra "
-        "factor — the trade-scaling term — shrinks every trade in proportion to the current "
-        "forecast uncertainty, with a floor that prevents the agent from being silenced "
-        "entirely. The second term is a hard guard: when uncertainty exceeds tau, no new "
-        "long-side risk may be added; the agent can still de-risk by selling.",
+        "factor, the trade-scaling term, shrinks every trade in proportion to the current "
+        "forecast uncertainty, with the floor s_min stopping the agent from being silenced "
+        "entirely on a quiet day. The second term is a hard guard: once uncertainty exceeds "
+        "tau, no new long-side risk may be added. The agent can still de-risk by selling.",
     )
 
     add_figure(
@@ -563,23 +567,23 @@ def build() -> Path:
     add_heading(doc, "3.6 Baseline PPO", 2)
     add_para(
         doc,
-        "The baseline agent is identical in every other respect: same observation window, same "
-        "reward, same hyper-parameters (learning rate 3e-4, n_steps 512, batch size 64, "
-        "n_epochs 5, total time-steps 10 000) and the same Stable-Baselines3 PPO solver with "
-        "an MLP policy. The only differences are the absence of the uncertainty coordinate "
-        "from the state and the absence of the two extra factors in Equation 3.6.",
+        "The baseline agent is identical in every other respect. Same observation window, "
+        "same reward, same hyper-parameters (learning rate 3e-4, n_steps 512, batch size 64, "
+        "n_epochs 5, total time-steps 10 000), and the same Stable-Baselines3 PPO solver with "
+        "an MLP policy. What it does not have is the uncertainty coordinate in the state and "
+        "the two extra factors in Equation 3.6.",
     )
 
     add_heading(doc, "3.7 Evaluation protocol", 2)
     add_para(
         doc,
-        "The protocol fixes splits 2009–2018 / 2019–2021 / 2022–2025 (train / validation / "
-        "test). Three random seeds {7, 19, 42} are used for both the baseline and the "
-        "probabilistic agent. Benchmarks are buy-and-hold of SPY at the start of the test "
-        "window and an all-cash position. The metric set is: final portfolio value, "
-        "annualised return and volatility, Sharpe ratio, max drawdown, the 95 % Value-at-Risk "
-        "and the rate at which the realised log-return falls below it, and the capital-"
-        "preservation ratio relative to the running high-watermark.",
+        "The protocol fixes the train, validation and test splits (2009 to 2018, 2019 to "
+        "2021, and 2022 to 2025). Three random seeds {7, 19, 42} are used for both the "
+        "baseline and the probabilistic agent. Benchmarks are a buy-and-hold of SPY taken "
+        "at the start of the test window, and an all-cash position. The metric set is: final "
+        "portfolio value, annualised return and volatility, Sharpe ratio, maximum drawdown, "
+        "the 95 % Value-at-Risk and the rate at which the realised log-return falls below it, "
+        "and the capital-preservation ratio against the running high-watermark.",
     )
     add_equation(
         doc,
@@ -595,29 +599,29 @@ def build() -> Path:
     add_heading(doc, "4.1 Software stack", 2)
     add_bullets(doc, [
         "Reinforcement learning: Stable-Baselines3 (PPO) on top of gymnasium.",
-        "Probabilistic forecaster: PyTorch (LSTM with two linear heads, trained with Gaussian NLL).",
-        "Data: yfinance for daily adjusted close, pandas for tabular handling.",
-        "Reporting: matplotlib for figures; small Python scripts for the metric tables and the supervisor pack; nbconvert for the walkthrough notebook PDF.",
+        "Probabilistic forecaster: PyTorch (an LSTM with two linear heads, trained with Gaussian NLL).",
+        "Data: yfinance for daily adjusted close prices and pandas for tabular handling.",
+        "Reporting: matplotlib for figures, small Python scripts for the metric tables and the supervisor pack, and nbconvert for the walkthrough-notebook PDF.",
     ])
 
     add_heading(doc, "4.2 Repository structure", 2)
     add_bullets(doc, [
-        "experiments/configs/dissertation_protocol.json — single source of truth for the protocol (splits, seeds, metric list, agent hyper-parameters).",
-        "experiments/common.py — environment, metric computation, data fetch and seed helpers.",
-        "experiments/run_baseline.py, run_probabilistic_agent.py, run_benchmarks.py — the three runners producing seeded artifacts.",
-        "experiments/results/ — generated CSV/JSON metric files and equity-curve series.",
-        "reports/build_supervisor_pack.py, generate_dissertation_report.py, plot_dissertation_visuals.py, build_dissertation_docx.py — reporting layer.",
-        "Dissertation_Walkthrough.ipynb — single-file end-to-end walkthrough used by the supervisor.",
+        "experiments/configs/dissertation_protocol.json: the single source of truth for the protocol (splits, seeds, metric list and agent hyper-parameters).",
+        "experiments/common.py: environment, metric computation, data fetch and seed helpers.",
+        "experiments/run_baseline.py, run_probabilistic_agent.py, run_benchmarks.py: the three runners that produce the seeded artifacts.",
+        "experiments/results/: the generated CSV and JSON metric files and the equity-curve series.",
+        "reports/build_supervisor_pack.py, generate_dissertation_report.py, plot_dissertation_visuals.py and build_dissertation_docx.py: the reporting layer.",
+        "Dissertation_Walkthrough.ipynb: a single-file end-to-end walkthrough that I prepared for supervisor review.",
     ])
 
     add_heading(doc, "4.3 Reproducibility", 2)
     add_para(
         doc,
-        "Reproducibility is treated as a first-class engineering concern. Every script reads "
-        "the protocol JSON; the seeds {7, 19, 42} are set globally before each run; the "
-        "results land in time-stamped JSON and CSV files. The reporting layer always reads the "
-        "latest results, so a re-run automatically refreshes both the supervisor pack and the "
-        "walkthrough outputs.",
+        "Reproducibility is something I treated as a hard requirement rather than a nice-to-"
+        "have. Every script reads the protocol JSON. The seeds {7, 19, 42} are set globally "
+        "before each run. Results land in time-stamped JSON and CSV files. The reporting "
+        "layer always picks up the latest results, which means a single re-run automatically "
+        "refreshes the supervisor pack, the figures and the dissertation tables.",
     )
     page_break(doc)
 
@@ -627,10 +631,10 @@ def build() -> Path:
     add_heading(doc, "5.1 Experimental setup", 2)
     add_para(
         doc,
-        "The numbers reported below are means across the three seeds for the seeded agents and "
-        "deterministic curves for the benchmarks, all on the held-out test window 2022-01-01 "
-        "to 2025-12-31. The dataset characterisation in Figure 5.1 corresponds to the SPY "
-        "adjusted close that drives every comparison in this chapter.",
+        "The numbers below are means across the three seeds for the two seeded agents, and "
+        "deterministic curves for the benchmarks. Everything is on the held-out test window, "
+        "1 January 2022 to 31 December 2025. Figure 5.1 shows the SPY adjusted-close series "
+        "that drives every comparison in this chapter.",
     )
 
     add_figure(
@@ -641,10 +645,11 @@ def build() -> Path:
     add_heading(doc, "5.2 Forecast uncertainty in the test window", 2)
     add_para(
         doc,
-        "Figure 3.1 already showed the normalised uncertainty signal that the probabilistic "
-        "agent consumes; high-uncertainty bands cluster in regions of elevated realised "
-        "volatility, as one would hope. Concrete summary statistics — minimum, mean, maximum "
-        "and the 80th-percentile threshold tau — are printed in the walkthrough notebook.",
+        "Figure 3.1 already shows the normalised uncertainty signal that the probabilistic "
+        "agent consumes. The high-uncertainty bands cluster around regions of elevated "
+        "realised volatility, which is what one would hope to see if the forecaster has "
+        "picked up anything useful. Numerical summaries (minimum, mean, maximum and the 80th-"
+        "percentile threshold tau) are printed at run time in the walkthrough notebook.",
     )
 
     add_heading(doc, "5.3 Aggregate comparison table", 2)
@@ -652,10 +657,11 @@ def build() -> Path:
         add_metrics_table(doc, metrics_rows)
     add_para(
         doc,
-        "Reading from the table: the baseline PPO ends near initial capital with a negative "
-        "Sharpe; the probabilistic PPO finishes meaningfully above passive buy-and-hold, with "
-        "a positive Sharpe and a preservation ratio above 0.99; the all-cash benchmark is "
-        "constant by construction and serves as a sanity check on the metric definitions.",
+        "Reading the table from top to bottom: the baseline PPO ends near initial capital "
+        "with a slightly negative Sharpe. The probabilistic PPO finishes meaningfully above "
+        "passive buy-and-hold, with a positive Sharpe and a preservation ratio above 0.99. "
+        "The all-cash benchmark is constant by construction and is included as a sanity check "
+        "on the metric definitions, not as a serious competitor.",
     )
 
     add_heading(doc, "5.4 Equity curves and drawdown", 2)
@@ -675,46 +681,49 @@ def build() -> Path:
     add_heading(doc, "6.1 Headline interpretation", 2)
     add_para(
         doc,
-        "The probabilistic agent meets the project's headline objective on the test window: "
-        "the preservation ratio (Equation 3.7) sits comfortably above 0.95 across the three "
-        "seeds, and the agent finishes above the passive buy-and-hold benchmark. Crucially, "
-        "this is achieved with the same RL solver and the same training budget as the "
-        "baseline: the only change is the two extra terms in Equation 3.6 and the additional "
-        "uncertainty coordinate in the state.",
+        "The probabilistic agent meets the headline objective on the test window. Its "
+        "preservation ratio (Equation 3.7) sits comfortably above 0.95 across all three "
+        "seeds, and it finishes above passive buy-and-hold. The point worth dwelling on is "
+        "that this is achieved with the same RL solver and the same training budget as the "
+        "baseline. The only change is the two extra terms in Equation 3.6 and the extra "
+        "uncertainty coordinate in the state. Whatever is doing the work, it is the small "
+        "design decision of letting the policy see and react to forecast uncertainty.",
     )
 
-    add_heading(doc, "6.2 Reading max drawdown carefully", 2)
+    add_heading(doc, "6.2 Reading maximum drawdown carefully", 2)
     add_para(
         doc,
-        "Max drawdown is the most commonly misread number in this comparison. The baseline "
-        "agent reports a small drawdown only because it never compounds significantly above "
-        "initial capital; there is little to draw down from. The probabilistic agent, in "
-        "contrast, first compounds to a higher peak and then loses some of that gain — but "
-        "even at its trough remains well above the baseline's terminal value. Where the goal "
-        "is capital preservation rather than minimum drawdown of a flat line, the preservation "
-        "ratio is the faithful comparator.",
+        "Maximum drawdown is the most commonly misread number in this comparison, and it is "
+        "worth being explicit about why. The baseline agent reports a small drawdown only "
+        "because it never compounds significantly above initial capital, so there is very "
+        "little to draw down from in the first place. The probabilistic agent, by contrast, "
+        "compounds to a higher peak, gives some of it back, and at its trough still sits "
+        "well above the baseline's terminal value. When the stated goal is capital "
+        "preservation rather than the minimum drawdown of an essentially flat curve, the "
+        "preservation ratio is the metric that matches the goal. I report maximum drawdown "
+        "alongside it for transparency, not as a contradicting result.",
     )
 
     add_heading(doc, "6.3 Limitations", 2)
     add_bullets(doc, [
-        "Single asset. Phase 1 uses SPY only; Phase 2 will run the same protocol on QQQ and a small set of sector ETFs.",
-        "Daily granularity. Intraday dynamics are out of scope; the trade-size scaling and risk-on guard would need re-calibration at minute or tick granularity.",
-        "One uncertainty estimator. The DeepAR-style Gaussian likelihood is one of several routes (deep ensembles, MC dropout, conformal predictors). A small sensitivity comparison is planned.",
-        "Three seeds. Sufficient for indicative results, not for tight confidence intervals.",
-        "No live trading. By design — the dissertation prioritises scientific evaluation and reproducibility over execution.",
+        "Single asset. Phase 1 uses SPY only. The Phase-2 plan extends the same protocol to QQQ and a small set of sector ETFs.",
+        "Daily granularity. Intraday dynamics are out of scope. The trade-size scaling and the risk-on guard would both need re-calibration at minute or tick granularity.",
+        "One uncertainty estimator. The DeepAR-style Gaussian likelihood is one of several routes; deep ensembles, MC dropout and conformal predictors are all reasonable alternatives. A small sensitivity comparison is planned.",
+        "Three seeds. Enough for indicative results, not enough for tight confidence intervals.",
+        "No live trading. This is by design. The dissertation prioritises scientific evaluation and reproducibility over execution risk.",
     ])
 
     add_heading(doc, "6.4 Threats to validity", 2)
     add_para(
         doc,
-        "Two threats merit explicit treatment. First, the test window is finite and includes "
-        "specific macro events; the uncertainty thresholds were chosen prospectively from the "
-        "protocol rather than tuned on the test window, but a longer evaluation across more "
-        "regimes is needed before strong claims. Second, the comparison rests on the metric "
-        "set in Section 3.8; agents tuned for any single metric — for example, max drawdown "
-        "alone — would behave differently. The preservation-versus-HWM framing is consistent "
-        "with the project objective and is reported alongside the standard metrics for "
-        "transparency.",
+        "Two threats are worth flagging directly. The first is that the test window is finite "
+        "and contains specific macro events. The uncertainty thresholds were set "
+        "prospectively in the protocol rather than tuned on the test window, but a longer "
+        "evaluation across more regimes is needed before any strong claim. The second is that "
+        "the comparison rests on the metric set in Section 3.7. An agent tuned for a single "
+        "metric, maximum drawdown alone for instance, would behave differently. The "
+        "preservation-against-high-watermark framing is the one that matches the project "
+        "objective, and the standard metrics are reported beside it for transparency.",
     )
     page_break(doc)
 
@@ -724,23 +733,24 @@ def build() -> Path:
     add_heading(doc, "7.1 Summary", 2)
     add_para(
         doc,
-        "This dissertation has shown that a small, explicit forecast-uncertainty signal — "
+        "This dissertation has shown that a small, explicit forecast-uncertainty signal, "
         "produced by a DeepAR-style probabilistic LSTM and consumed by a standard PPO policy "
-        "via the two extra terms in Equation 3.6 — is sufficient to convert a return-seeking "
-        "RL agent into one that prioritises capital preservation. On the held-out test window, "
-        "the probabilistic agent meets the >= 0.95 preservation objective, finishes above the "
+        "through the two extra terms in Equation 3.6, is enough to turn a return-seeking RL "
+        "agent into one that puts capital preservation first. On the held-out test window the "
+        "probabilistic agent meets the 0.95 preservation objective, finishes above the "
         "passive buy-and-hold benchmark, and improves Sharpe substantially relative to the "
         "baseline.",
     )
 
     add_heading(doc, "7.2 Future work", 2)
     add_bullets(doc, [
-        "Multi-asset robustness. Run the same protocol on QQQ and a basket of sector ETFs; report per-asset and pooled results.",
-        "Shock-window evaluation. Score both agents on the protocol shock periods (COVID 2020, Ukraine onset 2022) as case studies.",
-        "Sensitivity. Sweep the uncertainty quantile threshold in {0.7, 0.8, 0.9} and the minimum scale s_min in {0.05, 0.10, 0.20}.",
-        "Ablation. Compare PPO, PPO + uncertainty-as-state, and PPO + uncertainty-guard separately.",
-        "Alternative uncertainty estimators. Replace the Gaussian-NLL head with a deep ensemble or MC-dropout probabilistic forecaster.",
-        "Risk-aware reward shaping. Compare the implicit risk control via the trade-size term against an explicit risk-aware reward (e.g. log-growth penalised by drawdown).",
+        "Multi-asset robustness. Apply the same protocol to QQQ and a basket of sector ETFs, and report per-asset and pooled results.",
+        "Shock-window case studies. Score both agents on the protocol shock periods (COVID 2020 and the Ukraine-war onset in 2022) as standalone case studies.",
+        "Sensitivity. Sweep the uncertainty quantile threshold over {0.7, 0.8, 0.9} and the minimum scale s_min over {0.05, 0.10, 0.20}.",
+        "Ablation. Compare PPO, PPO with uncertainty as a state feature only, and PPO with the uncertainty guard only, against the full design.",
+        "Alternative uncertainty estimators. Swap the Gaussian-NLL head for a deep ensemble or an MC-dropout probabilistic forecaster.",
+        "Risk-aware reward shaping. Compare the implicit risk control I get from the trade-size term against an explicit risk-aware reward, for example log-growth penalised by drawdown.",
+        "Path to deployment. Wire the trained models to a paper-trading account (Alpaca is the obvious first target) so that one week of out-of-sample paper PnL can be reported alongside the backtest.",
     ])
     page_break(doc)
 

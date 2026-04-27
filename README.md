@@ -27,6 +27,21 @@ jupyter notebook Dissertation_Walkthrough.ipynb
 The interim review draft (Surrey form) lives at
 `reports/generated/interim_review_draft.md`.
 
+## Generated artifacts (under `reports/generated/exports/`)
+
+- `Dissertation_Walkthrough.pdf` — fully-rendered PDF of the supervisor walkthrough notebook (with embedded outputs, tables and plots).
+- `Dissertation_Draft.docx` — formal Master’s dissertation draft (title page, abstract, 7 chapters, references, appendix; equations rendered as images, figures embedded).
+- `equations/` — individual PNGs for every equation in the docx (re-used if the script regenerates the document).
+
+To regenerate:
+
+```bash
+venv/bin/python -m nbconvert --to webpdf --allow-chromium-download \
+  --output reports/generated/exports/Dissertation_Walkthrough.pdf \
+  Dissertation_Walkthrough.ipynb
+venv/bin/python reports/build_dissertation_docx.py
+```
+
 ## Quick Start
 
 ```bash

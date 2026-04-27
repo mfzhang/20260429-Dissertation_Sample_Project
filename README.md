@@ -5,19 +5,25 @@ capital preservation under regime stress.
 
 ## For supervisors — single-file walkthrough
 
-> Run **`Dissertation_Walkthrough.ipynb`** at the repo root.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TheFinix13/Dissertation_Sample_Project/blob/main/Dissertation_Walkthrough.ipynb)
+
+> The fastest path is the badge above. Click it, then *Runtime → Run all*.
+> The notebook's first cell automatically clones this repository into the
+> Colab session and installs dependencies; nothing has to be checked out
+> manually. The walkthrough then loads the SPY test-window dataset, builds
+> the DeepAR-style probabilistic forecaster, prints the uncertainty values,
+> states the mathematics that differentiates the probabilistic agent from
+> the baseline PPO, and renders the comparison table and equity-curve
+> plots from the seeded results.
 >
-> It downloads the SPY test-window dataset, builds the DeepAR-style
-> probabilistic forecaster, prints the uncertainty values, states the
-> mathematics that differentiates the probabilistic agent from the baseline
-> PPO, then loads (or re-runs) the seeded agent results and renders the
-> comparison table and equity-curve plots.
->
-> The notebook ships **with executed outputs** so you can read it without
-> running anything; for a fresh run, install requirements and choose
-> *Cell → Run All*.
+> The notebook ships **with executed outputs** so the document is readable
+> without running anything.
+
+For a local run instead of Colab:
 
 ```bash
+git clone https://github.com/TheFinix13/Dissertation_Sample_Project.git
+cd Dissertation_Sample_Project
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 pip install jupyter

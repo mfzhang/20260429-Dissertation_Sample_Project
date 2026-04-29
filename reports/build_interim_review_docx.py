@@ -323,44 +323,65 @@ def build() -> Path:
     add_heading(doc, "Problem statement", 1)
     add_para(
         doc,
-        "A risk-constrained investor — a pension fund, a managed-futures (CTA) hedge "
-        "fund, a family office, or a behaviourally loss-averse retail account — is "
-        "required to keep the portfolio's loss from peak (the maximum drawdown) below "
-        "a stated floor while still earning a return that beats holding cash and "
-        "ideally beats a passive index. The drawdown floor is not a theoretical "
-        "device. CTA fund prospectuses contain explicit soft and hard drawdown limits "
-        "that trigger investor redemption rights and forced liquidation; pension "
-        "boards monitor funded-status drawdowns; family-office Investment Policy "
-        "Statements express risk tolerance as a maximum-loss percentage rather than "
-        "as a volatility budget; and Kahneman and Tversky's (1979) prospect-theory "
-        "result establishes that retail investors feel cumulative losses about twice "
-        "as painfully as equivalent gains.",
+        "Start with a concrete picture. Imagine putting one million US dollars into "
+        "the US stock market in January 2022 and holding on. By January 2025 the "
+        "account is worth about $1.52 million — a clean win. But on the way there, "
+        "in October 2022, the same account briefly read $750,000 — a 25 % drop from "
+        "the peak. For an individual that drop is scary; for a pension fund or an "
+        "endowment it is something different — it is a breach of contract. Many "
+        "institutional mandates carry an explicit drawdown limit (a maximum permitted "
+        "loss measured from the peak rather than from the starting balance), and "
+        "when that limit is breached, redemption rights kick in, trustees can be "
+        "removed, and the fund can be forcibly liquidated. Buy-and-hold violates "
+        "these limits routinely; manually setting a stop-loss (sell when the price "
+        "has fallen 5 % below its peak) violates them too — it sells late and buys "
+        "back later. The dissertation asks whether a small AI agent can do better.",
     )
     add_para(
         doc,
-        "The standard quantitative answers do not fit that constraint cleanly. "
-        "Mean-variance optimisation (Markowitz, 1952) is single-period and treats "
-        "upside and downside variance symmetrically. Value-at-Risk and expected "
-        "shortfall (Rockafellar and Uryasev, 2000) are tail-loss measures within a "
-        "single horizon and do not constrain the path of cumulative losses. "
-        "Conditional drawdown-at-risk (Chekhlov, Uryasev and Zabarankin, 2005) is "
-        "path-dependent but static: it picks one weight vector and does not adapt to "
-        "within-window regime change. Reactive trailing stop-losses adapt sequentially "
-        "but fire after the drawdown has already begun and typically forfeit the "
-        "recovery.",
+        "Reframed problem statement. Many investors and institutional mandates are "
+        "required to keep portfolio drawdown from peak below a stated limit (commonly "
+        "between 5 % and 20 %) while still beating cash and ideally beating passive "
+        "index exposure. The standard quantitative answers — Markowitz mean-variance, "
+        "risk parity, fixed-rule stop-losses — either assume the joint distribution "
+        "of returns is stationary or react too slowly when the market regime changes. "
+        "This dissertation studies whether a deep-reinforcement-learning agent that "
+        "conditions on its own forecaster's predictive uncertainty (how confident the "
+        "forecaster is, not just what it predicts) can sit on a more attractive point "
+        "of the return-versus-drawdown trade-off than (a) passive buy-and-hold, (b) "
+        "a rule-based stop-loss policy, and (c) a baseline PPO with no uncertainty "
+        "signal — measured on a held-out test window that contains real macro shocks "
+        "(2022–2025), with reproducible random seeds and an out-of-time generalisation "
+        "check.",
     )
     add_para(
         doc,
-        "The dissertation asks whether a Proximal Policy Optimization (PPO) agent "
-        "that conditions on the predictive uncertainty produced by a DeepAR-style "
-        "probabilistic recurrent network can sit on a more attractive point of the "
-        "return-versus-drawdown trade-off than three named alternatives: passive "
-        "buy-and-hold, a rule-based trailing stop-loss policy, and a baseline PPO "
-        "that sees no uncertainty signal. The headline result is the joint of "
-        "risk-adjusted return and capital preservation against the running "
-        "high-watermark; meeting either half on its own is trivial (cash gives "
-        "perfect preservation and zero return), so the design is judged on whether "
-        "it satisfies both at once on a test window containing real macro shocks.",
+        "Where the standard answers fail. Mean-variance (Markowitz, 1952) is single-"
+        "period and treats upside and downside wiggles symmetrically — it has no "
+        "memory of the running peak. Value-at-Risk and expected shortfall "
+        "(Rockafellar and Uryasev, 2000) measure how bad a single bad day could be, "
+        "but they cannot tell you how many bad days in a row you can endure before "
+        "the loss-from-peak crosses the limit. Conditional drawdown-at-risk "
+        "(Chekhlov, Uryasev and Zabarankin, 2005) is path-dependent and matches the "
+        "institutional constraint shape, but it is a one-shot static optimisation: "
+        "it picks one weight vector and does not adapt mid-window. Reactive trailing "
+        "stop-losses adapt sequentially but fire after the drawdown has already "
+        "begun and typically forfeit the recovery on the way back up.",
+    )
+    add_para(
+        doc,
+        "Why this matters in practice. Drawdown control is a real, billion-dollar "
+        "institutional problem. CalPERS and other major pension funds, sovereign-"
+        "wealth funds, university endowments and CTA funds all run explicit drawdown "
+        "limits in their governance documents. Bridgewater Associates' All Weather "
+        "fund, which has managed over 150 billion US dollars at peak, is publicly "
+        "described by its founder as designed to lose less in any environment — an "
+        "explicit drawdown-control objective. The drawdown literature itself "
+        "(Magdon-Ismail and Atiya, 2004; Young, 1991; Sortino and Price, 1994; "
+        "Chekhlov, Uryasev and Zabarankin, 2005) is the formal home for these "
+        "constraints; this dissertation does not invent them, it picks up the "
+        "tradition and extends it from one-shot optimisation to a sequential, "
+        "uncertainty-aware decision policy.",
     )
 
     # ----- Objectives -----
@@ -386,11 +407,25 @@ def build() -> Path:
         "The annotated list below is the working set of references that anchor the "
         "dissertation. Each entry follows a uniform structure — what the paper did, "
         "why they did it, what it does well, where it falls short, and how the gap is "
-        "fixed in the literature — so the comparative differentiation that Dr Nguyen "
-        "asked for is visible at a glance. The dissertation's full bibliography in "
-        "Chapter 2 of Main_Dissertation_Draft.docx is the canonical version; the list "
-        "below is the compact working set for this interim review.",
+        "fixed in the literature — so the comparative differentiation Dr Nguyen asked "
+        "for is visible at a glance. The dissertation's full bibliography in Chapter 2 "
+        "of Main_Dissertation_Draft.docx is the canonical version; the list below is "
+        "the compact working set for this interim review.",
     )
+    add_para(
+        doc,
+        "Why the families differ at a glance. The risk-measure literature is not a "
+        "ranking of competing answers to one question; it is a sequence of answers to "
+        "different questions, each developed in response to a specific limitation of "
+        "the family that came before:",
+    )
+    add_bullets(doc, [
+        "Markowitz (1952) — \"What is the smoothest portfolio I can build given my return target?\" Single-period; symmetric penalty on wiggles.",
+        "Rockafellar and Uryasev (2000) — \"What is the portfolio with the smallest expected loss in the worst 5 % of single-period outcomes?\" Single-period; coherent tail measure. Differs from Markowitz in shifting from average wiggle to tail loss.",
+        "Magdon-Ismail and Atiya (2004) / Young (1991) / Chekhlov, Uryasev and Zabarankin (2005) — \"What is the worst loss-from-peak this strategy can be expected to experience over its lifetime?\" Path-dependent. Differs from VaR/ES in shifting from a single bad day to the worst peak-to-trough excursion of the equity curve.",
+        "Sortino and Price (1994) — \"How much per-period downside deviation does this strategy accept to earn its return?\" Same per-period grain as Markowitz but with the symmetric penalty replaced by an asymmetric one. Differs from Markowitz in its treatment of upside.",
+        "Jiang/Yang/Liu DRL-finance papers — \"Can a deep RL policy outperform static rules on equities and crypto with return-only reward?\" Sequential decision but uncertainty-blind. Differs from the risk-measure tradition in treating risk as something measured after the fact rather than constrained explicitly.",
+    ])
     add_para(
         doc,
         "Drawdown literature (the closest antecedents).",
@@ -398,13 +433,13 @@ def build() -> Path:
     )
     refs = [
         ("Magdon-Ismail and Atiya (2004) — \"Maximum Drawdown.\" Risk Magazine, 17(10), 99–102.",
-         "What and why: derived a closed-form expectation for the maximum drawdown of a geometric Brownian motion with drift, motivated by practitioner demand for an analytical baseline against which observed MDD figures could be calibrated. Advantages: closed-form, operationally meaningful, tied directly to (mu, sigma, T). Disadvantages: requires Brownian motion with constant drift and volatility — empirically wrong for financial returns, which exhibit volatility clustering and fat tails. Fix: extends to GARCH and regime-switching baselines, or — operationally — to the CDaR programme of Chekhlov, Uryasev and Zabarankin (2005). Position in this dissertation: defines the maximum drawdown statistic used throughout §5–§6 and motivates the analytical context for the test-window MDD numbers."),
+         "What and why: derived a closed-form expectation for the maximum drawdown of a geometric Brownian motion with drift, motivated by practitioner demand for an analytical baseline against which observed MDD figures could be calibrated. Advantages: closed-form, operationally meaningful, tied directly to (mu, sigma, T). Disadvantages: requires Brownian motion with constant drift and volatility — empirically wrong for financial returns, which exhibit volatility clustering and fat tails. Fix: extends to GARCH and regime-switching baselines, or — operationally — to the CDaR programme of Chekhlov, Uryasev and Zabarankin (2005). Position in this dissertation: defines the maximum drawdown statistic used throughout Section 5–Section 6 and motivates the analytical context for the test-window MDD numbers."),
         ("Young (1991) — \"Calmar Ratio: A Smoother Tool.\" Futures, 20(1), 40.",
-         "What and why: introduced the Calmar ratio (annualised return / maximum drawdown) as a return-per-unit-pain measure intuitive to institutional investors with explicit drawdown limits. Advantages: no parametric assumption on returns; speaks the language of the institutional mandate; widely understood. Disadvantages: extreme single-event sensitivity — one bad week can permanently impair a strategy's Calmar; rewards strategies whose worst loss is still ahead of them. Fix: Sterling and Burke ratios use averages of the worst N drawdowns; the CDaR programme of Chekhlov, Uryasev and Zabarankin (2005) uses a tail expectation over the full drawdown distribution and removes the single-event problem. Position in this dissertation: reported as a diagnostic alongside Sharpe in §5.5; its limitations are exactly what motivated the move to the constrained CDaR-style objective in §3.1.5."),
+         "What and why: introduced the Calmar ratio (annualised return / maximum drawdown) as a return-per-unit-pain measure intuitive to institutional investors with explicit drawdown limits. Advantages: no parametric assumption on returns; speaks the language of the institutional mandate; widely understood. Disadvantages: extreme single-event sensitivity — one bad week can permanently impair a strategy's Calmar; rewards strategies whose worst loss is still ahead of them. Fix: Sterling and Burke ratios use averages of the worst N drawdowns; the CDaR programme of Chekhlov, Uryasev and Zabarankin (2005) uses a tail expectation over the full drawdown distribution and removes the single-event problem. Position in this dissertation: reported as a diagnostic alongside Sharpe in Section 5.5; its limitations are exactly what motivated the move to the constrained CDaR-style objective in Section 3.1.5."),
         ("Chekhlov, Uryasev and Zabarankin (2005) — \"Drawdown Measure in Portfolio Optimization.\" International Journal of Theoretical and Applied Finance, 8(1), 13–58.",
-         "What and why: extended the CVaR construction of Rockafellar and Uryasev (2000) from the loss distribution to the path-dependent drawdown distribution, defining the conditional drawdown-at-risk (CDaR_alpha) and showing that drawdown-constrained portfolio optimisation reduces to a linear programme under empirical scenarios. Motivated by institutional allocators (endowments, sovereign wealth funds) who already demanded CDaR diagnostics but had no tractable optimisation routine for them. Advantages: coherent generalisation of MDD/Calmar to a tail expectation over the drawdown distribution; LP-tractable; matches institutional mandates. Disadvantages: computational cost grows with horizon T; remains a one-shot static optimisation that does not naturally accommodate a sequential decision policy. Fix: multi-stage stochastic programming (Bertsimas, Lauprete and Samarov, 2004) extends to multiple periods; reinforcement learning extends further to a state-conditional policy that learns when to reduce exposure rather than only how to allocate it. Position in this dissertation: the closest classical antecedent to the constrained problem in §3.1.5. The dissertation's contribution can be stated as enforcing the CDaR-style constraint inside a sequential PPO policy rather than at portfolio-construction time."),
+         "What and why: extended the CVaR construction of Rockafellar and Uryasev (2000) from the loss distribution to the path-dependent drawdown distribution, defining the conditional drawdown-at-risk (CDaR_alpha) and showing that drawdown-constrained portfolio optimisation reduces to a linear programme under empirical scenarios. Motivated by institutional allocators (endowments, sovereign wealth funds) who already demanded CDaR diagnostics but had no tractable optimisation routine for them. Advantages: coherent generalisation of MDD/Calmar to a tail expectation over the drawdown distribution; LP-tractable; matches institutional mandates. Disadvantages: computational cost grows with horizon T; remains a one-shot static optimisation that does not naturally accommodate a sequential decision policy. Fix: multi-stage stochastic programming (Bertsimas, Lauprete and Samarov, 2004) extends to multiple periods; reinforcement learning extends further to a state-conditional policy that learns when to reduce exposure rather than only how to allocate it. Position in this dissertation: the closest classical antecedent to the constrained problem in Section 3.1.5. The dissertation's contribution can be stated as enforcing the CDaR-style constraint inside a sequential PPO policy rather than at portfolio-construction time."),
         ("Sortino and Price (1994) — \"Performance Measurement in a Downside Risk Framework.\" Journal of Investing, 3(3), 59–64.",
-         "What and why: replaced the standard deviation in the Sharpe-ratio denominator with the downside deviation against a target return tau, motivated by Sortino's long-running argument that Sharpe penalises long-only mandates twice over (once for negative returns, once for above-average positive returns). Advantages: asymmetric penalty matches asymmetric utility of long-only investors; same data requirement as Sharpe; widely understood in CTA and hedge-fund evaluation. Disadvantages: tau is a modelling decision rather than a derived quantity, so the same strategy can have very different Sortino ratios under different rate environments; unstable when there are few sub-tau returns; remains single-period and silent on the path of the equity curve. Fix: report at multiple tau; pair with a path-dependent measure such as MDD or Calmar; lower-partial-moment family (Bawa, 1975; Fishburn, 1977) generalises the squared deviation. Position in this dissertation: reported in the §3.7 metric table; the asymmetric-penalty intuition behind Sortino is the same intuition behind the choice of drawdown rather than variance as the binding measure."),
+         "What and why: replaced the standard deviation in the Sharpe-ratio denominator with the downside deviation against a target return tau, motivated by Sortino's long-running argument that Sharpe penalises long-only mandates twice over (once for negative returns, once for above-average positive returns). Advantages: asymmetric penalty matches asymmetric utility of long-only investors; same data requirement as Sharpe; widely understood in CTA and hedge-fund evaluation. Disadvantages: tau is a modelling decision rather than a derived quantity, so the same strategy can have very different Sortino ratios under different rate environments; unstable when there are few sub-tau returns; remains single-period and silent on the path of the equity curve. Fix: report at multiple tau; pair with a path-dependent measure such as MDD or Calmar; lower-partial-moment family (Bawa, 1975; Fishburn, 1977) generalises the squared deviation. Position in this dissertation: reported in the Section 3.7 metric table; the asymmetric-penalty intuition behind Sortino is the same intuition behind the choice of drawdown rather than variance as the binding measure."),
     ]
     for r in refs:
         add_para(doc, r[0], bold=True)
@@ -418,7 +453,7 @@ def build() -> Path:
         ("Markowitz (1952) — \"Portfolio Selection.\" Journal of Finance, 7(1), 77–91.",
          "What and why: turned portfolio choice into a quadratic optimisation in mean and variance, motivated by the absence of any quantitative framework for diversification before 1952. Advantages: convex QP solvable in milliseconds; closed-form efficient frontier in the unconstrained case; foundation of every later extension. Disadvantages: requires stationary mu and Sigma; weights are highly sensitive to estimation error (Michaud, 1989, \"error-maximising\"); penalises upside and downside symmetrically; single-period and ignores path properties. Fix: Black-Litterman shrinkage; Ledoit-Wolf covariance shrinkage; replace symmetric variance with downside deviation (Sortino) or tail loss (CVaR) or drawdown (CDaR). Position here: the classical static baseline that the sequential, uncertainty-aware policy is positioned against."),
         ("Rockafellar and Uryasev (2000) — \"Optimization of Conditional Value-at-Risk.\" Journal of Risk, 2(3), 21–42.",
-         "What and why: wrote down a convex programme whose minimiser is the CVaR of the portfolio's loss distribution, motivated by the post-Artzner et al. (1999) recognition that VaR is not coherent and the practitioner need for a tractable, optimisable alternative. Advantages: coherent (sub-additive); convex in the weights; reduces to an LP under empirical scenarios. Disadvantages: single-period, so silent on the path of the equity curve; tail-data-hungry. Fix: extreme-value-theory parametric fits for the tail (McNeil and Frey, 2000); path-dependent generalisation in CDaR (Chekhlov et al., 2005). Position here: motivates the tail-loss arm of §2.1 and the VaR-95 violation-rate metric reported in §3.7."),
+         "What and why: wrote down a convex programme whose minimiser is the CVaR of the portfolio's loss distribution, motivated by the post-Artzner et al. (1999) recognition that VaR is not coherent and the practitioner need for a tractable, optimisable alternative. Advantages: coherent (sub-additive); convex in the weights; reduces to an LP under empirical scenarios. Disadvantages: single-period, so silent on the path of the equity curve; tail-data-hungry. Fix: extreme-value-theory parametric fits for the tail (McNeil and Frey, 2000); path-dependent generalisation in CDaR (Chekhlov et al., 2005). Position here: motivates the tail-loss arm of Section 2.1 and the VaR-95 violation-rate metric reported in Section 3.7."),
     ]
     for r in refs:
         add_para(doc, r[0], bold=True)
@@ -431,11 +466,11 @@ def build() -> Path:
     )
     refs = [
         ("Sutton and Barto (2018) — Reinforcement Learning: an Introduction, 2nd ed., MIT Press.",
-         "What and why: the canonical textbook treatment of MDPs and policy-gradient methods, motivated by twenty years of fragmented research that needed a single integrated reference. Advantages: standardises notation and conceptual scaffolding for the entire field; covers tabular and function-approximation methods uniformly. Disadvantages: predates the deep-RL revolution in its proportions, so coverage of large-scale function approximation is comparatively light. Fix: pair with Schulman et al. (2017) for modern policy-gradient practice. Position here: the reference relied on for the MDP formulation and the policy-gradient derivations in §3.5."),
+         "What and why: the canonical textbook treatment of MDPs and policy-gradient methods, motivated by twenty years of fragmented research that needed a single integrated reference. Advantages: standardises notation and conceptual scaffolding for the entire field; covers tabular and function-approximation methods uniformly. Disadvantages: predates the deep-RL revolution in its proportions, so coverage of large-scale function approximation is comparatively light. Fix: pair with Schulman et al. (2017) for modern policy-gradient practice. Position here: the reference relied on for the MDP formulation and the policy-gradient derivations in Section 3.5."),
         ("Schulman, Wolski, Dhariwal, Radford and Klimov (2017) — \"Proximal Policy Optimization Algorithms.\" arXiv:1707.06347.",
          "What and why: introduced a clipped surrogate objective that approximates a trust-region constraint without the conjugate-gradient machinery of TRPO, motivated by the need for an algorithm with TRPO-like performance and SGD-like operational simplicity. Advantages: forgiving with respect to hyper-parameters; first-order optimisation only; mature open-source implementations (Stable-Baselines3). Disadvantages: clipping is a heuristic with no formal trust-region guarantee; sensitive to advantage-estimation method; ratio variable can be numerically unstable on long horizons. Fix: PPO-EWMA (Hilton et al., 2022); trust-region-aware clipping. Position here: PPO is the policy-gradient algorithm used for both the baseline and the uncertainty-aware variant. The clipped surrogate is the reason PPO was picked over vanilla policy gradient or TRPO: the operational simplicity matters on a single-asset environment with limited training budget."),
         ("Jiang, Xu and Liang (2017) — \"A Deep Reinforcement Learning Framework for the Financial Portfolio Management Problem.\" arXiv:1706.10059.",
-         "What and why: treated portfolio management as an end-to-end DRL problem on cryptocurrency, motivated by the inadequacy of static rules on a non-stationary high-frequency market. Advantages: genuinely end-to-end (raw price tensor → portfolio weights); validated on a market where mean-variance baselines fail; established the template later adopted by FinRL. Disadvantages: return-only reward; cryptocurrency-specific; uncertainty-blind; tested on a single window without walk-forward. Fix: Yang et al. (2020) and FinRL extend to equities and add reproducibility infrastructure; this dissertation closes the uncertainty-blind and risk-blind gaps. Position here: the closest prior DRL-finance work in spirit, against which the present dissertation's contribution is positioned in §2.4."),
+         "What and why: treated portfolio management as an end-to-end DRL problem on cryptocurrency, motivated by the inadequacy of static rules on a non-stationary high-frequency market. Advantages: genuinely end-to-end (raw price tensor → portfolio weights); validated on a market where mean-variance baselines fail; established the template later adopted by FinRL. Disadvantages: return-only reward; cryptocurrency-specific; uncertainty-blind; tested on a single window without walk-forward. Fix: Yang et al. (2020) and FinRL extend to equities and add reproducibility infrastructure; this dissertation closes the uncertainty-blind and risk-blind gaps. Position here: the closest prior DRL-finance work in spirit, against which the present dissertation's contribution is positioned in Section 2.4."),
         ("Yang, Liu, Zhong and Walid (2020) — \"Deep Reinforcement Learning for Automated Stock Trading: An Ensemble Strategy.\" ICAIF.",
          "What and why: applied the Jiang template to US equities and added an algorithm-level ensemble that picks the best of A2C/PPO/DDPG per regime, motivated by the high run-to-run variance of any single policy-gradient algorithm. Advantages: equities-validated; engineered technical indicators give useful inductive bias; explicit train/validation/test split protocol that this dissertation follows. Disadvantages: still return-only; technical-indicator features embed prior beliefs; in-sample regime detection has look-ahead concerns; uncertainty-blind. Fix: walk-forward evaluation (Bailey and López de Prado, 2014); the present dissertation's uncertainty coupling is orthogonal to the algorithm-ensemble idea and can in principle be added on top. Position here: borrowed the train/validation/test split style and the seed-averaging convention; positioned as an algorithm-level rather than constraint-level contribution."),
         ("Liu, Yang, Gao and Wang (2021) — FinRL. arXiv:2011.09607.",
@@ -462,7 +497,7 @@ def build() -> Path:
         ("Gal and Ghahramani (2016) — \"Dropout as a Bayesian Approximation.\" ICML.",
          "What and why: showed that dropout at inference time can be interpreted as variational approximation to a Bayesian posterior over weights, motivated by the wish to extract uncertainty estimates from existing deep models without architectural change. Advantages: zero training-time overhead; works on existing trained networks; gives empirical predictive distributions cheaply. Disadvantages: variational approximation is loose; underestimates epistemic uncertainty in some settings; calibration depends on dropout rate. Fix: combine with last-layer Bayesian methods or with conformal calibration. Position here: cited as background reading for why a learned predictive variance can be treated as a meaningful uncertainty proxy; the dissertation does not use MC dropout because the DeepAR-style head provides the same signal more cheaply at training time."),
         ("Vovk, Gammerman and Shafer (2005) — Algorithmic Learning in a Random World. Springer.",
-         "What and why: developed conformal prediction, a non-parametric, distribution-free framework for constructing finite-sample-valid prediction sets, motivated by the desire for calibration guarantees that do not depend on parametric distributional assumptions. Advantages: model-agnostic; finite-sample validity under exchangeability; can wrap any underlying predictor. Disadvantages: predictive intervals can be conservative; standard exchangeability assumption is violated by time-series data. Fix: split-conformal and adaptive variants for non-exchangeable data (Gibbs and Candès, 2021). Position here: noted in §2.6 and §7.2 as a future-work overlay that would give the dissertation's uncertainty signal a finite-sample coverage guarantee independent of the Gaussian-head assumption."),
+         "What and why: developed conformal prediction, a non-parametric, distribution-free framework for constructing finite-sample-valid prediction sets, motivated by the desire for calibration guarantees that do not depend on parametric distributional assumptions. Advantages: model-agnostic; finite-sample validity under exchangeability; can wrap any underlying predictor. Disadvantages: predictive intervals can be conservative; standard exchangeability assumption is violated by time-series data. Fix: split-conformal and adaptive variants for non-exchangeable data (Gibbs and Candès, 2021). Position here: noted in Section 2.6 and Section 7.2 as a future-work overlay that would give the dissertation's uncertainty signal a finite-sample coverage guarantee independent of the Gaussian-head assumption."),
     ]
     for r in refs:
         add_para(doc, r[0], bold=True)
@@ -504,9 +539,9 @@ def build() -> Path:
         ("1.2 Reproducible baseline / probabilistic / benchmark runners", "Done", "Three runners, seeded"),
         ("1.3 Dissertation report + supervisor pack", "Done", "reports/generated/"),
         ("1.4 Rule-based stop-loss comparator (5 % and 10 % variants)", "Done", "experiments/run_rule_baselines.py"),
-        ("1.5 Robustness on 70-ticker test universe (Phase-1 budget)", "Done", "Four-agent comparison on 70 tickers × 3 seeds × 10k steps; aggregate stats + per-ticker table in §5.5 of dissertation"),
-        ("1.6 Walk-forward (out-of-time) on CPU-feasible subset", "Done", "4 tickers × 4 folds × 3 seeds × 10k steps = 96 trainings; in §6.4 of dissertation"),
-        ("1.7 Extended seed-stability check on representative sub-universe", "Done", "8 tickers × 10 seeds × 50k steps = 80 trainings; in §5.5.1 of dissertation"),
+        ("1.5 Robustness on 70-ticker test universe (Phase-1 budget)", "Done", "Four-agent comparison on 70 tickers × 3 seeds × 10k steps; aggregate stats + per-ticker table in Section 5.5 of dissertation"),
+        ("1.6 Walk-forward (out-of-time) on CPU-feasible subset", "Done", "4 tickers × 4 folds × 3 seeds × 10k steps = 96 trainings; in Section 6.4 of dissertation"),
+        ("1.7 Extended seed-stability check on representative sub-universe", "Done", "8 tickers × 10 seeds × 50k steps = 80 trainings; in Section 5.5.1 of dissertation"),
         ("1.8 Phase-2 extended grid on full 70-ticker universe", "Scheduled", "GPU-only; orchestrator experiments/run_extended_grid.py + notebook notebooks/extended_grid_colab.ipynb"),
     ])
 
@@ -612,7 +647,7 @@ def build() -> Path:
             "Sortino, with notation explained. Implement the rule-based stop-loss "
             "baseline as a third comparator. Expand the test universe from a single "
             "index to a 70-ticker diversified-equity universe and re-run the four-"
-            "agent comparison at the Phase-1 budget. Add the §5.5.1 extended seed-"
+            "agent comparison at the Phase-1 budget. Add the Section 5.5.1 extended seed-"
             "stability check on a representative eight-ticker sub-universe.",
             "M1: rule-based baseline checked in and reported alongside the AI "
             "agents (mid-May, done). M2: 70-ticker robustness study + extended "

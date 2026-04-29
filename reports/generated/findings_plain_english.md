@@ -48,7 +48,7 @@ The big finding: **the AI cut average max-drawdown by 14 percentage points (from
 
 Three reasons, each one taken from a body of finance literature that is older than RL.
 
-1. **Real money is run under drawdown rules, not Sharpe ratios.** Endowments operate under spending policies that are tied to how far the portfolio is below its high-water mark. Hedge funds charge their performance fee only above the high-water mark. Pension funds have funded-ratio targets that effectively cap drawdown. If the academic objective is "useful in finance", the academic objective should be drawdown control. (Chekhlov, Uryasev & Zabarankin 2005 formalised this with CDaR; Markowitz 1952 wrote the original variance-based version; both are in the dissertation §2.1.)
+1. **Real money is run under drawdown rules, not Sharpe ratios.** Endowments operate under spending policies that are tied to how far the portfolio is below its high-water mark. Hedge funds charge their performance fee only above the high-water mark. Pension funds have funded-ratio targets that effectively cap drawdown. If the academic objective is "useful in finance", the academic objective should be drawdown control. (Chekhlov, Uryasev & Zabarankin 2005 formalised this with CDaR; Markowitz 1952 wrote the original variance-based version; both are in the dissertation Section 2.1.)
 
 2. **Buy-and-hold's 25% drawdown actually happens, and it actually breaks people.** Behavioural finance has measured this for 40 years: real investors sell at the bottom, not because they are stupid, but because their constraints (margin calls, redemption requests, pension funding ratios) force them to. A 25% drawdown is the *minimum* risk on the broad US market in 2022. A drawdown-aware overlay is not a fancy optimisation — it is the difference between staying invested and being forced out.
 
@@ -79,9 +79,9 @@ Total parameter count is well under 50,000. A real production trading system wou
 
 ## What you can show Dr Nguyen, today
 
-- **`reports/generated/exports/Main_Dissertation_Draft.docx`** — the full dissertation. The sections that directly answer the supervisor's previous-meeting feedback are §1.2 (problem statement, now formal), §2.1 (finance background with notation), §3.1.5 (explicit objective function — this was missing before), §5.5 (70-ticker test-universe aggregate), §5.5.1 (extended-budget seed-stability check), Appendix B (full 70-row per-ticker table), §6.3 (honest discussion of where the agent fails), §6.4 (walk-forward out-of-time evidence).
+- **`reports/generated/exports/Main_Dissertation_Draft.docx`** — the full dissertation. The sections that directly answer the supervisor's previous-meeting feedback are Section 1.2 (problem statement, now formal), Section 2.1 (finance background with notation), Section 3.1.5 (explicit objective function — this was missing before), Section 5.5 (70-ticker test-universe aggregate), Section 5.5.1 (extended-budget seed-stability check), Appendix B (full 70-row per-ticker table), Section 6.3 (honest discussion of where the agent fails), Section 6.4 (walk-forward out-of-time evidence).
 - **`reports/generated/exports/InterimReview.docx`** — the formal Interim Review document, ready to share.
-- **`reports/generated/exports/Fiyins_Dissertation.docx`** — companion document; the same 70-ticker evidence as §5.5 / Appendix B of the academic dissertation, but in plain English with finance context for a non-quantitative reader.
+- **`reports/generated/exports/Fiyins_Dissertation.docx`** — companion document; the same 70-ticker evidence as Section 5.5 / Appendix B of the academic dissertation, but in plain English with finance context for a non-quantitative reader.
 - **`reports/generated/charts/fiyins_portfolio_results.png`** — one image showing the per-ticker results across all 70 tickers.
 - **`reports/generated/charts/fiyins_portfolio_winloss.png`** — one image showing where the AI wins and loses across 70 tickers.
 - **`reports/generated/findings_plain_english.md`** — this document.

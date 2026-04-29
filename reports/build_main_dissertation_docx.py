@@ -146,7 +146,7 @@ def add_metrics_table(doc: Document, rows: list[dict]) -> None:
 
 
 def add_basket_table(doc: Document, rows: list[dict]) -> None:
-    """Per-ticker comparison table used by §5.5.
+    """Per-ticker comparison table used by Section 5.5.
 
     Each input row carries an extra 'ticker' field; rows are grouped by
     ticker and laid out as one row per (ticker, agent) pair.
@@ -365,91 +365,147 @@ def build() -> Path:
     add_heading(doc, "1.1 Background and motivation", 2)
     add_para(
         doc,
-        "The motivating problem for this dissertation is not a theoretical curiosity. It "
-        "is a constraint that real institutional investors have written into their legal "
-        "documents. A typical Commodity Trading Advisor (CTA) hedge fund prospectus "
-        "contains a soft drawdown limit at 10 % from peak, at which point investors gain a "
-        "redemption right, and a hard drawdown limit at 20 %, at which point the fund is "
-        "forcibly liquidated. Pension boards monitor the drawdown of funded status and "
-        "remove trustees over breaches, not over volatility. Bridgewater's All Weather, the "
-        "largest single risk-parity fund in the world at over 150 billion US dollars at "
-        "peak, is publicly described by its founder as designed to lose less in any "
-        "environment. Family-office Investment Policy Statements typically express their "
-        "risk tolerance as a maximum-loss percentage rather than a volatility target. And "
+        "Start with a concrete picture. Imagine you put one million US dollars into the "
+        "US stock market in January 2022 and hold on. By January 2025, you have about "
+        "$1.52 million. That looks like a clean win. But on the way there, in October "
+        "2022, your account balance briefly read $750,000 — a 25 % drop from the peak "
+        "you had reached in January. For an individual investor that 25 % drop is "
+        "scary. For a pension fund, an endowment, a sovereign-wealth-fund mandate or a "
+        "Commodity Trading Advisor (CTA hedge fund) it is something different: it is a "
+        "breach of contract. Many institutional mandates carry an explicit drawdown "
+        "limit (a maximum permitted loss measured from the peak rather than from the "
+        "starting balance). When that limit is breached, redemption rights kick in, "
+        "trustees can be removed, and the fund can be forcibly liquidated. Buy-and-"
+        "hold violates these limits routinely; manually setting a stop-loss (sell when "
+        "the price has fallen 5 % below its peak) violates them too — it sells late "
+        "and buys back even later. The question this dissertation answers is whether a "
+        "small AI agent can do better than either of those two options.",
+    )
+    add_para(
+        doc,
+        "The institutional reality matters. CalPERS, the California Public Employees' "
+        "Retirement Service and one of the largest pension funds in the world, "
+        "documents an explicit drawdown limit in its governance papers. University "
+        "endowments such as Yale's and Harvard's report drawdown alongside return as "
+        "their headline performance measure. Bridgewater Associates' All Weather "
+        "fund, which managed over 150 billion US dollars at peak, is publicly "
+        "described by its founder as designed to lose less in any environment — an "
+        "explicit drawdown-control objective rather than a return-maximisation one. "
+        "Family-office Investment Policy Statements typically express risk tolerance "
+        "as a maximum-loss percentage rather than as a volatility target. And "
         "Kahneman and Tversky's (1979) prospect-theory result establishes that retail "
         "investors feel losses about twice as painfully as equivalent gains, which "
-        "explains why panic-selling is triggered by drawdown rather than by variance. In "
-        "every one of these settings the binding constraint is the same shape: do not "
-        "lose more than X percent from peak, and earn a return above cash.",
+        "explains why panic-selling is triggered by drawdown rather than by variance. "
+        "In every one of these settings the binding constraint has the same shape: do "
+        "not lose more than X percent from peak, and earn a return above cash.",
     )
     add_para(
         doc,
-        "The standard quantitative toolkit is not a clean fit to that constraint. "
-        "Markowitz (1952) mean-variance optimisation is single-period and treats upside "
-        "and downside variance symmetrically, so two portfolios with identical mean and "
-        "variance can have wildly different maximum drawdowns. Value-at-Risk and "
-        "expected shortfall (Rockafellar and Uryasev, 2000) measure tail loss within a "
-        "single period and do not constrain the path of cumulative losses. The Sortino "
-        "ratio (Sortino and Price, 1994) trims the symmetry of variance but is still a "
-        "per-period measure. The drawdown literature itself — Magdon-Ismail and Atiya "
-        "(2004) on the maximum drawdown of Brownian motion, Chekhlov, Uryasev and "
-        "Zabarankin (2005) on Conditional Drawdown-at-Risk — develops a path-dependent "
-        "framework that does match the institutional constraint, but the resulting "
-        "optimisation programmes are non-convex and static: they pick one weight vector "
-        "and stick with it. None of these tools can dynamically say, at hour fifty-three "
-        "of a regime shift, that the portfolio is at four per cent drawdown, the "
-        "forecaster's confidence has just collapsed, and the position should therefore "
-        "be trimmed before another bad day pushes the constraint.",
+        "The standard quantitative toolkit was not designed for this kind of "
+        "constraint. Markowitz (1952) mean-variance optimisation is single-period and "
+        "treats upside and downside wiggles in price as if they were the same kind of "
+        "problem; it has no memory of the running peak. Value-at-Risk and expected "
+        "shortfall (Rockafellar and Uryasev, 2000) measure how bad a single bad day "
+        "could be, but they cannot tell you how many bad days in a row you can endure "
+        "before your loss-from-peak crosses the limit. The Sortino ratio (Sortino and "
+        "Price, 1994) trims the symmetric-variance assumption but is still a per-"
+        "period measure. The drawdown literature itself — Magdon-Ismail and Atiya "
+        "(2004) on the maximum drawdown of a Brownian-motion model, Chekhlov, "
+        "Uryasev and Zabarankin (2005) on Conditional Drawdown-at-Risk — does "
+        "develop a path-dependent framework that matches the institutional "
+        "constraint, but the resulting optimisation programmes are static: they pick "
+        "one weight vector and stick with it. None of these tools can dynamically "
+        "say, on day fifty-three of a regime shift, that the portfolio is now at four "
+        "per cent drawdown, the forecaster's confidence has just collapsed, and the "
+        "position should therefore be trimmed before the next bad day pushes the "
+        "constraint over the edge.",
     )
     add_para(
         doc,
-        "In the last decade deep reinforcement learning (DRL) has emerged as a flexible "
-        "alternative. Rather than solve an analytic optimisation under a fixed constraint "
-        "set, a DRL agent learns a control policy directly from interaction with a market "
-        "environment. Jiang et al. (2017), Yang et al. (2020) and the FinRL library of "
-        "Liu et al. (2021) have shown that policy-gradient methods can be made to work on "
-        "equities, ETFs and cryptocurrencies. Two practical gaps in this body of work "
-        "motivate the present dissertation. The first is that the reward signal almost "
-        "always rewards portfolio return and lets risk in only indirectly, through "
-        "volatility-adjusted reward shaping or by reading the Sharpe ratio off after the "
-        "fact. As a result the trained policy carries no native notion of the path-"
-        "dependent drawdown constraint that a real mandate would impose. The second is "
-        "that the policy is trained on point-estimate features and is never told how "
-        "confident the underlying forecaster is in its own prediction. When the market "
-        "enters a regime where forecast variance spikes the agent has no native way to be "
-        "cautious. The opportunity this dissertation pursues is to add the missing "
-        "pieces back: a drawdown-constrained framing on one side and an explicit "
-        "uncertainty signal on the other, and to measure the resulting policy against "
-        "both the static optimisation tradition and the practitioner reality of fixed-"
-        "rule overlays such as trailing stop-losses.",
+        "In the last decade deep reinforcement learning (DRL — a branch of machine "
+        "learning where an agent learns by trial and error in a simulated environment) "
+        "has emerged as a flexible alternative. Rather than solve a one-shot "
+        "mathematical optimisation, a DRL agent learns a sequential decision policy "
+        "(\"what should I do today, given everything I have observed so far?\") "
+        "directly from interaction with a market environment. Jiang, Xu and Liang "
+        "(2017), Yang, Liu, Zhong and Walid (2020) and the FinRL library of Liu, Yang, "
+        "Gao and Wang (2021) have shown that policy-gradient methods can be made to "
+        "work on equities, ETFs and cryptocurrencies. Two practical gaps in this body "
+        "of work motivate the present dissertation. The first is that the reward "
+        "signal almost always rewards portfolio return and lets risk enter only "
+        "indirectly, through reward shaping or by reading the Sharpe ratio off after "
+        "the fact; the trained policy therefore carries no native notion of the path-"
+        "dependent drawdown constraint that a real mandate would impose. The second "
+        "is that the policy is trained on point-estimate features (the forecaster's "
+        "best guess) and is never told how confident the forecaster is in that guess. "
+        "When the market enters a regime where forecast confidence collapses, the "
+        "agent has no native way to be cautious. The opportunity this dissertation "
+        "pursues is to add the missing pieces back: a drawdown-constrained framing on "
+        "one side, and an explicit uncertainty signal on the other, and to measure "
+        "the resulting policy against both the static-optimisation tradition and the "
+        "practitioner reality of fixed-rule overlays such as trailing stop-losses.",
     )
 
     add_heading(doc, "1.2 Problem statement", 2)
     add_para(
         doc,
-        "The question this dissertation addresses can be stated in one sentence. A risk-"
-        "constrained investor is required to keep the portfolio's loss from peak below a "
-        "stated drawdown floor while still earning a return above cash, and the dissertation "
-        "asks whether a sequential-decision policy that consumes its own forecaster's "
-        "confidence can sit on a more attractive point of the return-versus-drawdown "
-        "trade-off than the static optimisations and reactive rules that are the current "
-        "state of practice.",
+        "A note on framing. An earlier version of this dissertation framed the problem as "
+        "\"capital preservation\" — keep the portfolio safe. That framing was a mistake, "
+        "for a simple reason: the obvious reply is \"go to cash, you preserve 100 %, done\" "
+        "— which destroys the project. The fix is to stop selling preservation as the "
+        "objective and start selling it as the constraint, and to put risk-adjusted "
+        "return back as the objective. The reframed problem statement, which this "
+        "dissertation answers, is therefore phrased in those terms.",
     )
     add_para(
         doc,
-        "The current state of practice has three components. The static-optimisation "
-        "tradition (Markowitz mean-variance, risk parity, Conditional Drawdown-at-Risk) "
-        "picks one weight vector and does not adapt to within-window regime change. The "
+        "Reframed problem statement. Many investors, and many institutional mandates "
+        "explicitly, are required to keep portfolio drawdown from peak below a stated "
+        "limit (commonly somewhere between 5 % and 20 %) while still beating cash and "
+        "ideally beating passive index exposure. The standard ways of doing this — "
+        "Markowitz mean-variance, risk parity, fixed-rule stop-losses — either assume "
+        "the joint distribution of returns is stationary (so the recipe that fits the "
+        "training window will continue to fit) or react too slowly when the market "
+        "regime changes. This dissertation studies whether a deep-reinforcement-learning "
+        "agent that conditions on its own forecaster's predictive uncertainty (how "
+        "confident the forecaster is, not just what it predicts) can sit on a more "
+        "attractive point of the return-versus-drawdown trade-off than (a) passive buy-"
+        "and-hold, (b) a rule-based stop-loss policy of the kind a discretionary "
+        "investor would actually use, and (c) a baseline PPO that sees no uncertainty "
+        "signal. The evaluation is on a held-out test window that contains real macro "
+        "shocks (1 January 2022 to 31 December 2025, which spans the 2022 inflation-"
+        "rate-shock bear market), with reproducible random seeds and an out-of-time "
+        "generalisation check.",
+    )
+    add_para(
+        doc,
+        "Three notes on what this is and is not. First, the objective is risk-adjusted "
+        "return; preservation is the constraint that prevents the trivial \"all-cash\" "
+        "answer. Second, the comparison is against three named alternatives, not against "
+        "an unspecified family of baselines: this is what makes the empirical claim "
+        "falsifiable. Third, the test window is fixed in advance and not chosen post-hoc "
+        "to make the agent look good; the 2022 macro shock is included precisely "
+        "because that is exactly the kind of regime where institutional drawdown "
+        "limits bind hardest.",
+    )
+    add_para(
+        doc,
+        "The current state of practice has three components and the dissertation is "
+        "positioned against each in turn. The static-optimisation tradition (Markowitz "
+        "mean-variance, risk parity, Conditional Drawdown-at-Risk) picks one weight "
+        "vector once and does not adapt when the market regime changes mid-window. The "
         "reactive-rule tradition (trailing stop-losses with moving-average re-entry) is "
-        "easy to implement, easy to explain and operationally common, but the stop fires "
-        "after the drawdown has already happened and the re-entry rule typically forfeits "
-        "the recovery; Section 5 shows that two trailing-stop variants on the test window "
-        "incur path drawdowns larger than passive buy-and-hold's. The deep-reinforcement-"
-        "learning tradition for portfolio management (Jiang et al., 2017; Yang et al., "
-        "2020; Liu et al., 2021) trains policies on point-estimate features and rewards "
-        "portfolio return, with risk entering only through reward shaping, so the trained "
-        "policy has no native drawdown-constraint awareness and no way to be cautious "
-        "when its own forecaster is unsure.",
+        "easy to implement, easy to explain to a client, and operationally common, but "
+        "the stop fires after the drawdown has already happened and the re-entry rule "
+        "typically forfeits the recovery — Chapter 5 shows that two trailing-stop "
+        "variants on the test window actually incur path drawdowns larger than passive "
+        "buy-and-hold's, because they sell into the dip and re-buy after the rebound. "
+        "The deep-reinforcement-learning tradition for portfolio management (Jiang et "
+        "al., 2017; Yang et al., 2020; Liu et al., 2021) trains policies on point-"
+        "estimate features and rewards portfolio return, with risk entering only "
+        "through reward shaping, so the trained policy has no native drawdown-"
+        "constraint awareness and no way to be cautious when its own forecaster is "
+        "unsure of itself.",
     )
     add_para(
         doc,
@@ -516,7 +572,7 @@ def build() -> Path:
         "agent. Chapter 4 covers the implementation: data pipeline, training procedure and "
         "reporting layer. Chapter 5 presents the experimental setup and the results on the "
         "held-out test window, including the rule-based comparator, the 70-ticker "
-        "diversified-equity-universe robustness study, and the §5.5.1 extended-budget "
+        "diversified-equity-universe robustness study, and the Section 5.5.1 extended-budget "
         "seed-stability evidence (10 random seeds × 50 000 PPO timesteps per cell, "
         "80 cells in total, on a representative subset of the universe). "
         "Chapter 6 reads the results carefully, including the trade-offs, the "
@@ -531,13 +587,30 @@ def build() -> Path:
     add_heading(doc, "2.1 Risk-management objectives in portfolio practice", 2)
     add_para(
         doc,
-        "Quantitative portfolio management has produced a sequence of risk-aware objective "
-        "functions over the last seventy years. This section sets out the four families "
-        "that are most often used in practice, gives the formal definition of each with "
-        "every symbol explained, and notes which assumptions each family makes and where "
-        "those assumptions are known to bind. Section 2.1.5 then states explicitly which "
-        "of these objectives is closest to the constrained problem solved in this "
-        "dissertation, and why.",
+        "What \"drawdown\" means, in plain English. Most people, when they think about "
+        "investment risk, think about volatility — how much a price wiggles up and down. "
+        "Institutions think about something different: drawdown. Imagine you start with "
+        "$100. The price goes up to $150 (a new peak). Then it drops to $120. Your "
+        "drawdown is measured against the $150 peak, not the $100 starting balance — you "
+        "are 20 % down from the high. The reason this matters more than volatility, in "
+        "practice, is that you don't feel a wiggle; you feel the pain of looking at your "
+        "account and seeing it well below where it has just been. If you manage a "
+        "pension fund and you lose 20 % of pensioners' money, you get fired — they do "
+        "not care that the average wiggle was small; they care that the money is gone. "
+        "Most institutional mandates write this fear into the contract directly: do not "
+        "let drawdown exceed X %, ever. The rest of this section sets out the formal "
+        "machinery the literature has built to talk about that constraint.",
+    )
+    add_para(
+        doc,
+        "Quantitative portfolio management has produced a sequence of risk-aware "
+        "objective functions over the last seventy years. This section sets out the four "
+        "families that are most often used in practice, gives the formal definition of "
+        "each with every symbol explained, notes which assumptions each family makes and "
+        "where those assumptions are known to bind, and — critically — explains why each "
+        "family was developed in response to the limitations of the family that came "
+        "before. Section 2.1.5 then states explicitly which of these objectives is "
+        "closest to the constrained problem solved in this dissertation, and why.",
     )
 
     add_heading(doc, "2.1.1 Mean-variance optimisation (Markowitz, 1952)", 3)
@@ -582,11 +655,26 @@ def build() -> Path:
     add_bullets(doc, [
         "Advantages. The optimisation is a convex quadratic programme that is solved exactly in milliseconds, the efficient frontier admits a closed-form parametric description in the unconstrained case, and the framework gives a single-number ranking (Sharpe ratio) that has become the default communication of risk-adjusted performance. It is the foundation of every academic and industrial extension of portfolio theory.",
         "Disadvantages. The framework assumes the joint return distribution is stationary with known mu and Sigma, but in practice both have to be estimated on a finite training window. The resulting weights are notoriously sensitive to estimation error: small changes in mu can produce large rebalancings in w, a phenomenon Michaud (1989) labelled \"error-maximising\" portfolios. The variance objective penalises upside and downside deviations symmetrically, which is conceptually wrong for a long-only mandate where upside volatility is desirable. And by being single-period the framework ignores path-dependent properties of the equity curve such as drawdowns, which are the constraint that institutional mandates actually bind on.",
-        "Fixes / extensions in the literature. Black and Litterman (1992) reduce estimation error by shrinking mu towards an equilibrium prior derived from the market portfolio. Ledoit and Wolf (2003) shrink Sigma towards a structured target. The downside-only measures of §2.1.4 (Sortino) replace symmetric variance with downside deviation. The tail-loss measures of §2.1.2 (VaR / ES) replace variance entirely with a tail quantile. The drawdown measures of §2.1.3 (MDD / Calmar / CDaR) replace single-period variance with a path-dependent loss-from-peak. This dissertation positions itself in the last family, with the additional move of using a sequential reinforcement-learning policy rather than a one-shot static optimisation.",
-        "Why it matters here. Mean-variance is reported in §5 alongside the path-dependent metrics so the reader can apply whichever objective matches their mandate. It is not the dissertation's headline objective because, on a 70-ticker test universe over a four-year window with a 2022 macro shock, path-dependent drawdown is what binds; a mean-variance optimiser sees no difference between a -25 % path drawdown that recovers and a smooth -5 % linear loss with the same variance.",
+        "Fixes / extensions in the literature. Black and Litterman (1992) reduce estimation error by shrinking mu towards an equilibrium prior derived from the market portfolio. Ledoit and Wolf (2003) shrink Sigma towards a structured target. The downside-only measures of Section 2.1.4 (Sortino) replace symmetric variance with downside deviation. The tail-loss measures of Section 2.1.2 (VaR / ES) replace variance entirely with a tail quantile. The drawdown measures of Section 2.1.3 (MDD / Calmar / CDaR) replace single-period variance with a path-dependent loss-from-peak. This dissertation positions itself in the last family, with the additional move of using a sequential reinforcement-learning policy rather than a one-shot static optimisation.",
+        "Why it matters here. Mean-variance is reported in Chapter 5 alongside the path-dependent metrics so the reader can apply whichever objective matches their mandate. It is not the dissertation's headline objective because, on a 70-ticker test universe over a four-year window with a 2022 macro shock, path-dependent drawdown is what binds; a mean-variance optimiser sees no difference between a -25 % path drawdown that recovers and a smooth -5 % linear loss with the same variance.",
     ])
 
     add_heading(doc, "2.1.2 Value-at-Risk and expected shortfall (Rockafellar and Uryasev, 2000)", 3)
+    add_para(
+        doc,
+        "Differentiation from Markowitz. Where Markowitz (1952) summarises risk by the "
+        "whole second moment of the return distribution (variance), Rockafellar and "
+        "Uryasev (2000) chose to summarise it by the tail expectation of the loss "
+        "distribution alone. The reason for the divergence is that institutional risk "
+        "regulation, by the late 1990s, had stopped caring about \"how much do returns "
+        "wiggle on average\" and started caring about \"how bad is the worst 1 % of "
+        "outcomes\" — a question Markowitz's quadratic objective is not built to "
+        "answer. The two papers are therefore solving different problems: Markowitz "
+        "answers \"what is the smoothest portfolio I can build given my return "
+        "expectation?\" while Rockafellar and Uryasev answer \"what is the portfolio "
+        "with the smallest expected tail loss?\". The two answers coincide only when "
+        "returns are jointly Gaussian, which empirical equity returns are not.",
+    )
     add_para(
         doc,
         "What the paper did. Value-at-Risk (VaR) is the tail-quantile of the portfolio "
@@ -633,22 +721,37 @@ def build() -> Path:
     add_bullets(doc, [
         "Advantages. Coherent (sub-additive, monotonic, positively homogeneous, translation-invariant); convex in the portfolio weights, which makes it directly compatible with constrained portfolio optimisation under additional linear or convex constraints; sensitive to the shape of the tail beyond the VaR quantile, unlike VaR itself; reduces to a linear programme under empirical scenarios. Mean-CVaR optimisation has therefore largely replaced mean-VaR in regulated settings (Basel III for banks; Solvency II for insurers).",
         "Disadvantages. Single-period: VaR and ES describe the loss distribution over one fixed horizon and are silent on the path of the equity curve between rebalancing dates. They will rate identically a smooth -10 % loss in a single step and a -25 % drawdown that recovers to a -10 % loss by the rebalancing date, even though the second is the one that breaks pension-fund mandates and triggers margin calls. Estimation of the tail itself is also data-hungry: at alpha = 0.99 the tail contains 1 % of the data, so even ten years of daily returns gives only ~25 observations on which to estimate the conditional expectation.",
-        "Fixes / extensions in the literature. Acerbi and Tasche (2002) clarified that ES is the smallest coherent risk measure that dominates VaR. The drawdown measures of §2.1.3 (MDD, Calmar, CDaR) are the path-dependent generalisation that closes the single-period gap. For tail-estimation small-sample issues, extreme value theory (McNeil and Frey, 2000) replaces the empirical tail with a fitted Generalised Pareto Distribution, trading estimation efficiency for a parametric assumption.",
-        "Why it matters here. The dissertation reports VaR-95 and the rate at which the realised log-return falls below it as part of the standard metric set in §3.7. The headline objective, however, is path-dependent (drawdown control, §2.1.3) rather than single-period (VaR/ES), because the binding constraint on a four-year test window with a 2022 bear-market drawdown is the path of the equity curve, not its terminal-period loss distribution.",
+        "Fixes / extensions in the literature. Acerbi and Tasche (2002) clarified that ES is the smallest coherent risk measure that dominates VaR. The drawdown measures of Section 2.1.3 (MDD, Calmar, CDaR) are the path-dependent generalisation that closes the single-period gap. For tail-estimation small-sample issues, extreme value theory (McNeil and Frey, 2000) replaces the empirical tail with a fitted Generalised Pareto Distribution, trading estimation efficiency for a parametric assumption.",
+        "Why it matters here. The dissertation reports VaR-95 and the rate at which the realised log-return falls below it as part of the standard metric set in Section 3.7. The headline objective, however, is path-dependent (drawdown control, Section 2.1.3) rather than single-period (VaR/ES), because the binding constraint on a four-year test window with a 2022 bear-market drawdown is the path of the equity curve, not its terminal-period loss distribution.",
     ])
 
     add_heading(doc, "2.1.3 Drawdown-based measures", 3)
     add_para(
         doc,
-        "Mean-variance, VaR and expected shortfall describe a single-period or "
-        "stationary loss distribution. They do not capture path-dependent properties of "
-        "a portfolio's equity curve. The drawdown family of measures fills that gap, and "
-        "is the family on which this dissertation is built. Four references anchor the "
-        "literature: the maximum-drawdown definition itself (Magdon-Ismail and Atiya, "
-        "2004), the Calmar return-per-unit-drawdown ratio (Young, 1991), the conditional "
-        "drawdown-at-risk programme (Chekhlov, Uryasev and Zabarankin, 2005), and a "
-        "growing body of empirical work that documents how often institutional "
-        "drawdown constraints actually bind.",
+        "Differentiation from the previous two families. Mean-variance and VaR/ES "
+        "describe either the average wiggle (variance) or the worst single-period loss "
+        "(tail quantile). Both are single-period objects: they look at one frame of "
+        "the equity-curve movie at a time. The drawdown family looks at the whole "
+        "movie. Where Markowitz cannot tell the difference between a smooth straight-"
+        "line loss and a -25 % round-trip drawdown that recovers to the same terminal "
+        "value, and where VaR/ES rates a slow 1 %-per-day-for-30-days bleed as a "
+        "succession of perfectly fine days, the drawdown family explicitly tracks the "
+        "running peak and asks how far below it the portfolio has fallen. That "
+        "structural difference — single-period versus path-dependent — is the entire "
+        "reason institutional mandates are written in drawdown terms rather than in "
+        "variance or VaR terms.",
+    )
+    add_para(
+        doc,
+        "Four references anchor the drawdown literature: the maximum-drawdown definition "
+        "itself (Magdon-Ismail and Atiya, 2004), the Calmar return-per-unit-drawdown "
+        "ratio (Young, 1991), the conditional drawdown-at-risk programme (Chekhlov, "
+        "Uryasev and Zabarankin, 2005), and the downside-deviation Sortino ratio "
+        "(Sortino and Price, 1994), which sits at the boundary between the path-"
+        "dependent drawdown family and the single-period family of Section 2.1.2. "
+        "These four papers are not interchangeable; each was developed in response to a "
+        "specific weakness in the previous one, and the differences between them are the "
+        "reason a practitioner reaches for one over another.",
     )
 
     add_para(
@@ -672,9 +775,12 @@ def build() -> Path:
 
     add_para(
         doc,
-        "Magdon-Ismail and Atiya (2004) — what and why. Magdon-Ismail and Atiya derived "
-        "a closed-form expression for the expected maximum drawdown of a geometric "
-        "Brownian motion with drift mu and volatility sigma over a horizon T. Their "
+        "Magdon-Ismail and Atiya (2004) — what and why. Where Markowitz and the "
+        "VaR/ES family give the practitioner a single-period summary of risk, Magdon-"
+        "Ismail and Atiya wrote down the analytical baseline for the path-dependent "
+        "object that institutional mandates actually constrain: the maximum drawdown. "
+        "They derived a closed-form expression for the expected maximum drawdown of a "
+        "geometric Brownian motion with drift mu and volatility sigma over a horizon T. Their "
         "motivation was practitioner: by 2004 hedge funds and CTAs had been asked to "
         "report MDD alongside Sharpe ratio for a decade, but no analytical baseline "
         "existed for the expected MDD that an in-control strategy with given (mu, sigma, "
@@ -692,13 +798,18 @@ def build() -> Path:
 
     add_para(
         doc,
-        "Young (1991) — what and why. The Calmar ratio (CALifornia Managed Account "
-        "Reports, the newsletter where Terry Young first proposed it in 1991) is a "
-        "return-per-unit-drawdown measure intuitive for institutional mandates with "
-        "explicit drawdown limits. Young's motivation was that the Sharpe ratio, by "
-        "using volatility in the denominator, did not communicate to institutional "
-        "investors what they actually cared about — how much pain they had to "
-        "endure to earn each unit of return. Calmar replaced volatility with MDD:",
+        "Young (1991) — what and why. Where Magdon-Ismail and Atiya (2004) gave "
+        "practitioners a baseline expectation for the maximum drawdown number itself, "
+        "Young (1991) gave practitioners a way to compare strategies on a return-"
+        "per-unit-drawdown basis. The Calmar ratio (named for CALifornia Managed "
+        "Account Reports, the newsletter where Terry Young first proposed it in 1991) "
+        "is a return-per-unit-drawdown measure intuitive for institutional mandates "
+        "with explicit drawdown limits. Young's motivation was that the Sharpe ratio, "
+        "by putting volatility in the denominator, did not communicate to "
+        "institutional investors what they actually cared about — how much pain they "
+        "had to endure to earn each unit of return. Calmar made the divergence from "
+        "Sharpe explicit by replacing volatility with maximum drawdown in the "
+        "denominator:",
     )
     add_equation(
         doc,
@@ -719,14 +830,25 @@ def build() -> Path:
 
     add_para(
         doc,
-        "Chekhlov, Uryasev and Zabarankin (2005) — what and why. CUZ extended the CVaR "
-        "construction of Rockafellar and Uryasev (2000) from the single-period loss "
-        "distribution to the path-dependent drawdown distribution. They define the "
-        "conditional drawdown-at-risk CDaR_alpha as the expected drawdown given that the "
-        "drawdown exceeds the alpha-quantile of the empirical drawdown distribution, "
-        "and — crucially — they show that under empirical (historical-scenario) data "
-        "this construction reduces to a linear programme that solves portfolio "
-        "optimisation under a CDaR constraint in seconds. Their motivation was direct: "
+        "Chekhlov, Uryasev and Zabarankin (2005) — what and why. Where Magdon-Ismail "
+        "and Atiya (2004) gave a closed-form baseline for a single statistic (the "
+        "expected maximum drawdown), and where Young (1991) gave a single-number "
+        "ratio for ranking strategies, Chekhlov, Uryasev and Zabarankin extended the "
+        "whole CVaR construction of Rockafellar and Uryasev (2000) from the single-"
+        "period loss distribution to the path-dependent drawdown distribution. The "
+        "structural difference from Young (1991) is that Calmar is sensitive to a "
+        "single worst day in the entire history (it depends only on the maximum), "
+        "whereas the CDaR object Chekhlov-Uryasev-Zabarankin define is a tail "
+        "expectation over the full distribution of drawdowns — it cannot be "
+        "destroyed by a single bad day. The structural difference from Magdon-Ismail "
+        "and Atiya (2004) is that the CDaR object is computable directly from "
+        "historical scenarios with no Brownian-motion assumption. They define the "
+        "conditional drawdown-at-risk CDaR_alpha as the expected drawdown given that "
+        "the drawdown exceeds the alpha-quantile of the empirical drawdown "
+        "distribution, and — crucially — they show that under empirical "
+        "(historical-scenario) data this construction reduces to a linear "
+        "programme that solves portfolio optimisation under a CDaR constraint in "
+        "seconds. Their motivation was direct: "
         "by 2005 the CDaR statistic was being demanded by institutional allocators "
         "(endowments, sovereign wealth funds, pension consultants) but no tractable "
         "optimisation routine existed to construct portfolios under it. CUZ provided "
@@ -740,6 +862,24 @@ def build() -> Path:
     ])
 
     add_heading(doc, "2.1.4 Downside-deviation measures: Sortino (Sortino and Price, 1994)", 3)
+    add_para(
+        doc,
+        "Differentiation from the previous papers. Markowitz (1952) penalises upside "
+        "and downside deviations from the mean symmetrically, on the grounds that the "
+        "second moment of the return distribution is the natural measure of "
+        "uncertainty. Sortino and Price (1994) chose differently. Their argument was "
+        "that for a long-only investor — the dominant institutional mandate type — "
+        "upside deviations are exactly what the investor is paying the manager to "
+        "deliver, and penalising them is conceptually wrong. Where Markowitz says "
+        "\"both kinds of wiggle are bad\", Sortino and Price say \"only the wiggles "
+        "below my floor are bad\". The mathematical move is small (replace the "
+        "denominator of Sharpe with a downside-only deviation) but the philosophical "
+        "move is significant: it puts an asymmetric utility, not symmetric variance, "
+        "at the centre of the risk measure. Sortino is therefore positioned "
+        "between Markowitz (symmetric, single-period) and the drawdown family of "
+        "Section 2.1.3 (asymmetric, path-dependent): asymmetric like the drawdown "
+        "family, but still single-period like Markowitz.",
+    )
     add_para(
         doc,
         "What the paper did. Sortino and Price replaced the standard deviation in the "
@@ -775,10 +915,33 @@ def build() -> Path:
         "Advantages. Asymmetric penalty matches the asymmetric utility of a long-only investor (positive volatility is good, negative volatility is bad); same data requirements as Sharpe (a return time series), so easy to drop into existing reporting pipelines; widely understood in practitioner circles, particularly in CTA and hedge-fund manager evaluation.",
         "Disadvantages. The choice of target tau is a modelling decision and not a derived quantity — the same strategy can have a Sortino of +1.4 against tau = 0 and +0.6 against tau = the risk-free rate, depending on the rate environment; for strategies with very few sub-tau returns the denominator is small and the ratio is unstable, sometimes producing inflated values that disappear after one bad month; like Sharpe, the Sortino ratio is a single-period statistic and is silent on the path of the equity curve, so a strategy with a deep drawdown that recovered can have a higher Sortino than a smoother strategy with a slightly lower mean.",
         "Fixes / extensions in the literature. Reporting Sortino at multiple values of tau (0, risk-free rate, mandate hurdle) addresses the target-rate sensitivity. Pairing Sortino with a path-dependent measure such as MDD or the Calmar ratio addresses the silent-on-path problem. Bawa (1975) and Fishburn (1977) provide the theoretical foundation — the lower partial moment family — of which the squared downside deviation is one specific instance; higher-order lower partial moments capture more of the tail.",
-        "Why it matters here. Sortino is reported alongside Sharpe in the §3.7 metric table when a sub-tau-return computation is available. The dissertation does not adopt Sortino as the headline objective because the binding constraint on the test universe is path-dependent (drawdown control), not single-period (downside variance against a target return); but the asymmetric-penalty intuition behind Sortino is the same intuition behind the dissertation's choice of drawdown rather than variance as the binding measure.",
+        "Why it matters here. Sortino is reported alongside Sharpe in the Section 3.7 metric table when a sub-tau-return computation is available. The dissertation does not adopt Sortino as the headline objective because the binding constraint on the test universe is path-dependent (drawdown control), not single-period (downside variance against a target return); but the asymmetric-penalty intuition behind Sortino is the same intuition behind the dissertation's choice of drawdown rather than variance as the binding measure.",
     ])
 
-    add_heading(doc, "2.1.5 Position of this dissertation", 3)
+    add_heading(doc, "2.1.5 Synthesis: what the four families ask, and why they answer differently", 3)
+    add_para(
+        doc,
+        "The four families above are not competing answers to the same question. They "
+        "are answers to four different questions, each developed in response to a "
+        "specific limitation of the family that came before:",
+    )
+    add_bullets(doc, [
+        "Markowitz (1952) asks: \"What is the portfolio with the smallest average wiggle that hits my return target?\" The answer is a one-shot quadratic programme on mean and variance.",
+        "Rockafellar and Uryasev (2000) ask: \"What is the portfolio with the smallest expected loss in the worst 5 % of single-period outcomes?\" The answer is a one-shot linear programme on the empirical tail. The shift from Markowitz is from average wiggle to tail loss.",
+        "Magdon-Ismail and Atiya (2004), Young (1991) and Chekhlov, Uryasev and Zabarankin (2005) ask: \"What is the worst loss-from-peak that this strategy can be expected to experience over its lifetime, and how do I optimise against it?\" The answer is a path-dependent statistic of the equity curve. The shift from VaR/ES is from single-period tail to multi-period worst peak-to-trough.",
+        "Sortino and Price (1994) ask: \"How much per-period downside deviation does this strategy take to earn its return?\" Same per-period grain as Markowitz, but with the symmetric penalty replaced by an asymmetric one. The shift from Markowitz is from symmetric to asymmetric.",
+    ])
+    add_para(
+        doc,
+        "These differences are the reason a practitioner reaches for one family over "
+        "another. A regulator running Basel III reaches for ES because it is coherent "
+        "and tractable. A pension trustee reaches for the drawdown family because the "
+        "mandate is written in drawdown terms. A long-only fund manager reaches for "
+        "Sortino because Sharpe penalises the upside they are paid to deliver. None "
+        "of these choices is wrong; they are answers to different questions.",
+    )
+
+    add_heading(doc, "2.1.6 Position of this dissertation", 3)
     add_para(
         doc,
         "The dissertation does not propose a new risk objective. It takes the "
@@ -865,7 +1028,20 @@ def build() -> Path:
 
     add_para(
         doc,
-        "Yang, Liu, Zhong and Walid (2020). What they did: applied the Jiang-style "
+        "Yang, Liu, Zhong and Walid (2020). Where Jiang, Xu and Liang (2017) ran a "
+        "single end-to-end policy on a single market (cryptocurrency), Yang, Liu, "
+        "Zhong and Walid chose differently on two axes: they moved the test market "
+        "to US equities, and they replaced the single-policy approach with an "
+        "ensemble across three RL algorithms. The reason for the equities move was "
+        "that mean-variance baselines on cryptocurrency are weak (so the comparison "
+        "is too easy to win); equities is the harder benchmark. The reason for the "
+        "ensemble move was that any single policy-gradient algorithm has high run-"
+        "to-run variance, and the best-performing algorithm in one market regime is "
+        "often not the best in the next.",
+    )
+    add_para(
+        doc,
+        "What they did: applied the Jiang-style "
         "template to US equities and replaced the single-algorithm policy with an "
         "ensemble that picks the best-performing of three policy-gradient algorithms "
         "(A2C, PPO and DDPG) per regime. Their state combines technical indicators "
@@ -877,14 +1053,28 @@ def build() -> Path:
         "each.",
     )
     add_bullets(doc, [
-        "Advantages. Move from cryptocurrency to US equities, where the empirical literature is denser and the comparison to mean-variance is more meaningful; engineered technical indicators give the policy useful inductive bias on momentum and mean-reversion; algorithm-level ensemble materially reduces seed variance; explicit train / validation / test split protocol that the present dissertation follows in §3.7.",
+        "Advantages. Move from cryptocurrency to US equities, where the empirical literature is denser and the comparison to mean-variance is more meaningful; engineered technical indicators give the policy useful inductive bias on momentum and mean-reversion; algorithm-level ensemble materially reduces seed variance; explicit train / validation / test split protocol that the present dissertation follows in Section 3.7.",
         "Disadvantages. Return-only reward; the technical-indicator feature set (MACD, RSI, ADX) embeds prior beliefs about which signals matter, which mean-variance and probabilistic models can sometimes contradict; the regime-switching ensemble is trained on the same window as the constituent algorithms and so has an in-sample look-ahead concern that walk-forward evaluation would expose; uncertainty-blind in exactly the same sense as Jiang et al. (2017).",
         "Fixes / extensions. The walk-forward protocol of Bailey and López de Prado (2014) addresses the in-sample regime-detection concern. The present dissertation's contribution sits orthogonal to the algorithm-level ensemble: any of A2C, PPO or DDPG could in principle host the uncertainty-aware coupling, and PPO is selected here for its stability and library availability rather than for any algorithm-level claim.",
     ])
 
     add_para(
         doc,
-        "Liu, Yang, Gao and Wang (2021) — FinRL. What they did: built an open-source "
+        "Liu, Yang, Gao and Wang (2021) — FinRL. Where Jiang, Xu and Liang (2017) "
+        "and Yang, Liu, Zhong and Walid (2020) contributed novel policies on "
+        "particular markets, Liu, Yang, Gao and Wang chose differently: they "
+        "contributed infrastructure rather than a policy. Their motivation was that "
+        "by 2020 the DRL-finance literature had reached the point where individual "
+        "papers reported divergent results on what looked like the same problem, "
+        "and the cause was that no two papers were using the same trading "
+        "environment, transaction-cost assumption, or metric definition. Where the "
+        "two earlier papers were saying \"here is a better policy\", FinRL says "
+        "\"here is the standard environment against which any future policy paper "
+        "should be evaluated\".",
+    )
+    add_para(
+        doc,
+        "What they did: built an open-source "
         "library that bundles the gym-style trading environment, the data pipeline, the "
         "algorithm interface and the reporting layer into one Python package. Why they "
         "did it: by 2021 the DRL-finance literature had reached a point where "
@@ -918,16 +1108,36 @@ def build() -> Path:
     ])
     add_para(
         doc,
-        "The pattern across the four references is that the policy state has grown "
-        "richer (from raw prices in Jiang et al. (2017) to engineered indicators in "
-        "Yang et al. (2020) to a configurable observation space in FinRL), the "
-        "optimisation backbone has converged on PPO, and the reward has remained almost "
-        "universally per-period return without an explicit drawdown constraint. The "
-        "contribution of this dissertation can be stated relative to that pattern: it "
-        "adds a forecaster's predictive uncertainty to the state, adds a hard guard on "
-        "long-side actions when uncertainty exceeds a quantile threshold, and takes "
-        "drawdown control as the headline constraint rather than a property to be "
-        "measured after the fact (Equation 3.4).",
+        "Synthesis: what these four DRL-for-finance references differ on, and where "
+        "this dissertation fits. Each of the four moved the field along a different "
+        "axis, and the differences are the reason a practitioner reaches for one over "
+        "another:",
+    )
+    add_bullets(doc, [
+        "Jiang, Xu and Liang (2017) chose the cryptocurrency market and a price-tensor end-to-end policy. The reason: cryptocurrency was the market where rule-based baselines were weakest and end-to-end DRL had the most to prove.",
+        "Yang, Liu, Zhong and Walid (2020) chose US equities and an algorithm-level ensemble. The reason: equities is the harder, more competitive benchmark, and any single policy-gradient algorithm is too noisy to trust on its own.",
+        "Liu, Yang, Gao and Wang (2021) chose to contribute infrastructure (FinRL) rather than a new policy. The reason: the field had outgrown the point where bespoke per-paper environments could be compared, and a standard environment was the binding constraint on further progress.",
+        "Schulman et al. (2017) chose a clipped surrogate objective rather than the full TRPO trust-region machinery. The reason: TRPO is theoretically attractive but operationally fragile; PPO is the practical compromise that has therefore become the default policy-gradient choice in finance applications.",
+    ])
+    add_para(
+        doc,
+        "The common pattern across the four references is that the policy state has "
+        "grown richer (from raw prices in Jiang et al. (2017), to engineered "
+        "indicators in Yang et al. (2020), to a configurable observation space in "
+        "FinRL), the optimisation backbone has converged on PPO, and the reward has "
+        "remained almost universally per-period portfolio return without an explicit "
+        "drawdown constraint. The contribution of this dissertation is therefore "
+        "stated against that pattern. Where Jiang et al. (2017) optimised return only "
+        "on cryptocurrency without an uncertainty signal, where Yang et al. (2020) "
+        "added an algorithm-level ensemble on US equities but kept the return-only "
+        "reward, and where Liu et al. (2021) standardised the infrastructure but "
+        "took no position on what the policy should optimise, this dissertation "
+        "chooses differently on a different axis: it leaves the policy-gradient "
+        "algorithm fixed at PPO, leaves the test market fixed at US equities, and "
+        "instead adds a forecaster's predictive uncertainty to the state, adds a "
+        "hard guard on long-side actions when uncertainty exceeds a quantile "
+        "threshold, and takes drawdown control as the headline constraint rather "
+        "than a property to be measured after the fact (Equation 3.4).",
     )
 
     add_heading(doc, "2.5 Probabilistic time-series forecasting (Salinas et al., 2020)", 2)
@@ -960,8 +1170,8 @@ def build() -> Path:
     add_bullets(doc, [
         "Advantages. Emits a calibrated predictive distribution as a native output, so the variance is a first-class citizen rather than a post-hoc construction; pools statistical strength across related time series, which is critical when individual series are short; trains with standard backpropagation and the same Adam optimiser as everything else; the same architecture handles intermittent, seasonal and trending series.",
         "Disadvantages. The chosen output family is a parametric assumption — the Gaussian head used here imposes thin-tailed conditional residuals that financial returns are known to violate (Mandelbrot, 1963); for very short series the LSTM is over-parameterised relative to the data and can overfit; predictive variances on out-of-sample regimes the network has never seen are not guaranteed to be well-calibrated; the architecture provides aleatoric uncertainty (the variance of the predictive distribution at the network's chosen mean) but not epistemic uncertainty (the network's own uncertainty about whether its mean is right at all).",
-        "Fixes / extensions. Replacing the Gaussian head with a Student-t head, or with a mixture-density head, addresses the fat-tail concern at the cost of more output parameters; deep ensembles (Lakshminarayanan et al., 2017, §2.6) or Monte-Carlo dropout (Gal and Ghahramani, 2016) supply the missing epistemic component; conformal prediction (Vovk et al., 2005) provides a non-parametric calibration overlay that gives finite-sample coverage guarantees regardless of the head distribution.",
-        "Why it matters here. The probabilistic forecaster in this dissertation is a stripped-down DeepAR with a Gaussian head: a two-layer LSTM with hidden dimension 32 and two linear heads emitting predictive mean and predictive log-variance, trained by Equation 2.9. Its purpose is not to produce the most accurate possible forecast — it is to supply a one-dimensional, continuous uncertainty signal u_t in [0, 1] that the PPO policy can read as a state feature and use as a guard on long-side actions (Equation 3.7). The Gaussian head is sufficient for that purpose; the alternative heads are listed in the §7.2 future-work section as a sensitivity check that does not affect the structure of the contribution.",
+        "Fixes / extensions. Replacing the Gaussian head with a Student-t head, or with a mixture-density head, addresses the fat-tail concern at the cost of more output parameters; deep ensembles (Lakshminarayanan et al., 2017, Section 2.6) or Monte-Carlo dropout (Gal and Ghahramani, 2016) supply the missing epistemic component; conformal prediction (Vovk et al., 2005) provides a non-parametric calibration overlay that gives finite-sample coverage guarantees regardless of the head distribution.",
+        "Why it matters here. The probabilistic forecaster in this dissertation is a stripped-down DeepAR with a Gaussian head: a two-layer LSTM with hidden dimension 32 and two linear heads emitting predictive mean and predictive log-variance, trained by Equation 2.9. Its purpose is not to produce the most accurate possible forecast — it is to supply a one-dimensional, continuous uncertainty signal u_t in [0, 1] that the PPO policy can read as a state feature and use as a guard on long-side actions (Equation 3.7). The Gaussian head is sufficient for that purpose; the alternative heads are listed in the Section 7.2 future-work section as a sensitivity check that does not affect the structure of the contribution.",
     ])
 
     add_heading(doc, "2.6 Uncertainty estimation in deep learning", 2)
@@ -1167,8 +1377,8 @@ def build() -> Path:
         "broad-market indices, sector SPDRs, dividend ETFs, thematic exposures and commodity "
         "funds). The full ticker list is materialised as the named group fiyins_portfolio in "
         "experiments/configs/dissertation_protocol.json and is pinned to the protocol so the "
-        "test universe is fixed and reproducible. SPY is presented in §5.3 and §5.4 as a "
-        "representative single-ticker case study before §5.5 expands the analysis to the full "
+        "test universe is fixed and reproducible. SPY is presented in Section 5.3 and Section 5.4 as a "
+        "representative single-ticker case study before Section 5.5 expands the analysis to the full "
         "universe. Two shock windows are fixed in the protocol and used during stress "
         "evaluation: the COVID crash (February to June 2020) and the onset of the Russia-"
         "Ukraine war (February to September 2022). The price series is converted to log-"
@@ -1319,12 +1529,12 @@ def build() -> Path:
         doc,
         "The numbers below are means across the three seeds for the two seeded agents, and "
         "deterministic curves for the benchmarks. Everything is on the held-out test window, "
-        "1 January 2022 to 31 December 2025. The chapter is structured in two halves: §5.3 "
-        "and §5.4 present a deep-dive single-ticker case study on SPY (the most-traded broad-"
-        "market index ETF, used here as a canonical representative); §5.5 then expands the "
-        "comparison to the full 70-ticker diversified-equity test universe defined in §3.2 "
+        "1 January 2022 to 31 December 2025. The chapter is structured in two halves: Section 5.3 "
+        "and Section 5.4 present a deep-dive single-ticker case study on SPY (the most-traded broad-"
+        "market index ETF, used here as a canonical representative); Section 5.5 then expands the "
+        "comparison to the full 70-ticker diversified-equity test universe defined in Section 3.2 "
         "and is the headline robustness evidence. Figure 5.1 shows the SPY adjusted-close "
-        "series used in the §5.3 / §5.4 case study.",
+        "series used in the Section 5.3 / Section 5.4 case study.",
     )
 
     add_figure(
@@ -1379,7 +1589,7 @@ def build() -> Path:
         caption="Figure 5.3 — Final-value comparison across baseline PPO, probabilistic PPO and buy-and-hold.",
     )
 
-    # ----- §5.5 Multi-ticker robustness across the 70-ticker test universe -----
+    # ----- Section 5.5 Multi-ticker robustness across the 70-ticker test universe -----
     # Pulls the fiyins70-tagged result files (70-ticker × 3-seed × 10k-step
     # Phase-1 evidence) and reports an aggregate four-agent table plus a
     # representative-subset table. The full 70-row per-ticker table lives in
@@ -1404,13 +1614,13 @@ def build() -> Path:
         add_heading(doc, "5.5 Multi-ticker robustness across the 70-ticker test universe", 2)
         add_para(
             doc,
-            "The §5.3 single-ticker numbers establish the headline result on "
+            "The Section 5.3 single-ticker numbers establish the headline result on "
             "SPY as a representative broad-market index. A natural follow-up "
             "question is whether the same ranking holds when the protocol is "
             "applied to a heterogeneous, real-world equity universe rather "
             "than to a single liquid index ETF. Table 5.2 reports aggregate "
             "metrics for the four agents across the 70-ticker diversified-"
-            "equity test universe defined in §3.2 — 41 single-name US large-"
+            "equity test universe defined in Section 3.2 — 41 single-name US large-"
             "cap equities spanning technology, payments and financial "
             "services, healthcare, consumer and industrials, plus 29 "
             "exchange-traded funds covering broad-market indices, sector "
@@ -1555,15 +1765,15 @@ def build() -> Path:
             "the 70.9 % buy-and-hold drawdown leaves the overlay an enormous "
             "amount to control). It loses on the low-uncertainty trend stocks "
             "(NVDA, AAPL) and on the low-drawdown defensives (SCHD, JNJ, "
-            "GLD) — exactly the regimes the §6.3 discussion identifies as "
+            "GLD) — exactly the regimes the Section 6.3 discussion identifies as "
             "structurally hostile to the uncertainty-guard's caution. The "
-            "§5.5.1 sub-section that follows shows that several of the "
+            "Section 5.5.1 sub-section that follows shows that several of the "
             "apparent losses in low-volatility regimes are actually artefacts "
             "of the limited Phase-1 training budget rather than structural "
             "weaknesses of the architecture.",
         )
 
-        # ----- §5.5.1 Extended seed-stability + training-budget check -----
+        # ----- Section 5.5.1 Extended seed-stability + training-budget check -----
         add_heading(doc, "5.5.1 Extended seed-stability check on a representative sub-universe", 3)
         add_para(
             doc,
@@ -1573,7 +1783,7 @@ def build() -> Path:
             "the uncertainty-guard genuinely under-allocates — versus noise "
             "from an under-trained policy with three seeds. The full 70-"
             "ticker × 10-seed × 50 000-step extended grid is GPU-only and is "
-            "scheduled for the Colab runtime in Phase 2 (§7.2). To produce "
+            "scheduled for the Colab runtime in Phase 2 (Section 7.2). To produce "
             "Phase-1 evidence that addresses the seed-stability question on "
             "CPU, the probabilistic agent was re-trained at the full extended "
             "budget — ten random seeds and 50 000 PPO timesteps per cell, "
@@ -1636,7 +1846,7 @@ def build() -> Path:
             "passive buy-and-hold on seven of eight tickers in this sub-"
             "universe (SPY, QQQ, IWM, XLK, XLF, XLV, XLU) at the extended "
             "budget. Energy (XLE) remains the single loss, consistent with "
-            "the §6.3 diagnosis that 2022 energy was a sustained, low-"
+            "the Section 6.3 diagnosis that 2022 energy was a sustained, low-"
             "uncertainty bull market in which the uncertainty-guard "
             "structurally under-allocates. The fact that seven of the eight "
             "sub-universe tickers shift to a uniform win at the extended "
@@ -1668,7 +1878,7 @@ def build() -> Path:
             "fundamentally sound at the extended budget. The full extended "
             "grid on the 70-ticker universe (10 seeds × 50 000 timesteps × 4 "
             "walk-forward folds × 16 bootstrap paths × 70 tickers × 2 "
-            "agents) is the Phase-2 deliverable described in §7.2 and the "
+            "agents) is the Phase-2 deliverable described in Section 7.2 and the "
             "Colab notebook notebooks/extended_grid_colab.ipynb is the "
             "execution path.",
         )
@@ -1762,7 +1972,7 @@ def build() -> Path:
     add_heading(doc, "6.3 Where the probabilistic agent wins, where it loses, and why", 2)
     add_para(
         doc,
-        "Table 5.2 in §5.5 reports the four-agent comparison across the 70-ticker "
+        "Table 5.2 in Section 5.5 reports the four-agent comparison across the 70-ticker "
         "test universe. The honest summary is that the probabilistic agent "
         "delivers the headline drawdown-control result on the entire universe "
         "(70 of 70 tickers have lower max drawdown under the agent than under "
@@ -1812,7 +2022,7 @@ def build() -> Path:
         "aware calibration — separate quantile thresholds for technology, "
         "financials, healthcare, defensives, commodities — would likely close "
         "most of the loss gap on the low-uncertainty trend stocks at small "
-        "risk to the wins. This is the M3 calibration deliverable in §7.2. "
+        "risk to the wins. This is the M3 calibration deliverable in Section 7.2. "
         "Second, the honest practitioner-facing claim, with the 70-ticker "
         "evidence in hand, is that the architecture delivers drawdown control "
         "on the entire universe, beats the manually-tuned trailing stop in "
@@ -1884,7 +2094,7 @@ def build() -> Path:
     add_heading(doc, "6.4 Walk-forward (out-of-time) preliminary findings", 2)
     add_para(
         doc,
-        "The headline numbers in §5.5 train and evaluate on the same 2022–2025 "
+        "The headline numbers in Section 5.5 train and evaluate on the same 2022–2025 "
         "window. This is methodologically conservative for the comparison "
         "between baseline and probabilistic PPO (both arms see the same data), "
         "but it does not by itself demonstrate that the trained policy "
@@ -1900,7 +2110,7 @@ def build() -> Path:
         "Running walk-forward across all 70 tickers × 4 folds × 3 seeds at the "
         "Phase-1 budget would require 840 individual PPO training runs and is "
         "GPU-only in practice; that grid is the Phase-2 deliverable scheduled "
-        "for the Colab T4 runtime (§7.2, "
+        "for the Colab T4 runtime (Section 7.2, "
         "notebooks/extended_grid_colab.ipynb). To produce CPU-feasible Phase-1 "
         "evidence on out-of-time generalisation, a four-ticker × four-fold × "
         "three-seed walk-forward grid was run on CPU in late April 2026 — 96 "
@@ -1980,7 +2190,7 @@ def build() -> Path:
     add_para(
         doc,
         "Third, the absolute terminal values are smaller than the in-sample "
-        "headline ($1.62 M terminal in the §5 table on SPY 2022–2025). This is "
+        "headline ($1.62 M terminal in the Chapter 5 table on SPY 2022–2025). This is "
         "the expected cost of out-of-sample evaluation on a modest training "
         "budget; the in-sample number is the upper bound of what the "
         "architecture can do, the out-of-sample number is what it would actually "
@@ -2002,7 +2212,7 @@ def build() -> Path:
         "experiments/run_extended_grid.py and the notebook is "
         "notebooks/extended_grid_colab.ipynb). The headline tables in "
         "Chapter 5 will be reproduced for each fold across the full universe, "
-        "and the §6.4 numbers above will be superseded by the median + "
+        "and the Section 6.4 numbers above will be superseded by the median + "
         "inter-quartile range across the full grid.",
     )
 
@@ -2015,10 +2225,10 @@ def build() -> Path:
         "phase rather than left as an open-ended caveat.",
     )
     add_bullets(doc, [
-        "Phase-1 training budget. The headline 70-ticker numbers in §5.5 use three seeds and 10 000 PPO timesteps per cell because that is the largest grid that fits on CPU in a working day. The §5.5.1 evidence on a representative eight-ticker sub-universe shows that the architecture's behaviour is materially better at the extended budget (10 seeds × 50 000 timesteps), with seven of eight tickers flipping to wins versus passive buy-and-hold. The full 70-ticker extended grid is GPU-only and is the Phase-2 deliverable in §7.2.",
-        "One held-out test window. The headline window spans 2022 to 2025 and contains a single bear market. The walk-forward grid in §6.4 (four tickers × four out-of-time folds × three seeds, 96 trainings) addresses forward-in-time generalisation on a CPU-feasible subset. The full 70-ticker walk-forward grid is the Phase-2 deliverable.",
+        "Phase-1 training budget. The headline 70-ticker numbers in Section 5.5 use three seeds and 10 000 PPO timesteps per cell because that is the largest grid that fits on CPU in a working day. The Section 5.5.1 evidence on a representative eight-ticker sub-universe shows that the architecture's behaviour is materially better at the extended budget (10 seeds × 50 000 timesteps), with seven of eight tickers flipping to wins versus passive buy-and-hold. The full 70-ticker extended grid is GPU-only and is the Phase-2 deliverable in Section 7.2.",
+        "One held-out test window. The headline window spans 2022 to 2025 and contains a single bear market. The walk-forward grid in Section 6.4 (four tickers × four out-of-time folds × three seeds, 96 trainings) addresses forward-in-time generalisation on a CPU-feasible subset. The full 70-ticker walk-forward grid is the Phase-2 deliverable.",
         "One uncertainty estimator. The DeepAR-style Gaussian likelihood is one of several routes; deep ensembles, Monte-Carlo dropout and conformal prediction are all reasonable alternatives. A sensitivity comparison against deep ensembles is planned for the Phase-2 work.",
-        "Global uncertainty-quantile threshold. The threshold is currently a single value (0.80) calibrated on the SPY validation window. The §6.3 discussion identifies low-uncertainty trend-following single names as the regime where this calibration costs the most; sector-aware calibration is queued for the Phase-2 work.",
+        "Global uncertainty-quantile threshold. The threshold is currently a single value (0.80) calibrated on the SPY validation window. The Section 6.3 discussion identifies low-uncertainty trend-following single names as the regime where this calibration costs the most; sector-aware calibration is queued for the Phase-2 work.",
         "Daily granularity. Intraday dynamics are out of scope; the trade-size scaling and the risk-on guard would both need re-calibration at minute or tick granularity. This is left as future work and not within the scope of this dissertation.",
         "No live execution in the headline experiments. A paper-trading shadow run via the Alpaca brokerage API is scheduled for August 2026 and will be reported as an out-of-sample case study in the final dissertation, with the live PnL placed alongside the backtest.",
     ])
@@ -2068,7 +2278,7 @@ def build() -> Path:
     add_para(doc, "Scheduled before submission:", bold=True)
     add_bullets(doc, [
         "Phase-2 extended grid on the full 70-ticker universe (June–July 2026). Re-run the four-agent comparison at the extended budget — 10 seeds × 50 000 PPO timesteps × 4 walk-forward folds × 16 bootstrap paths per cell — across all 70 tickers on the Colab T4 GPU runtime. The orchestrator is experiments/run_extended_grid.py and the notebook is notebooks/extended_grid_colab.ipynb. The headline aggregate Table 5.2 and the Table 5.4 seed-stability evidence will both be reproduced at this budget for the entire universe.",
-        "Sector-aware uncertainty calibration (July 2026). Replace the single global uncertainty-guard threshold (0.80) with per-sector or per-regime thresholds calibrated on the validation window. The §6.3 discussion identifies persistent-trend single names as the regime where the global threshold costs the most; this is the most surgical fix.",
+        "Sector-aware uncertainty calibration (July 2026). Replace the single global uncertainty-guard threshold (0.80) with per-sector or per-regime thresholds calibrated on the validation window. The Section 6.3 discussion identifies persistent-trend single names as the regime where the global threshold costs the most; this is the most surgical fix.",
         "Ablation study (July 2026). Compare PPO, PPO with the uncertainty signal as a state feature only, and PPO with the uncertainty guard only, against the full design, on the same protocol. The aim is to attribute how much of the headline result comes from each of the three pieces.",
         "Sensitivity sweep (July 2026). Sweep the uncertainty quantile threshold over {0.7, 0.8, 0.9}, the minimum scale s_min over {0.05, 0.10, 0.20}, and the maximum trade fraction over {0.05, 0.10, 0.20}.",
         "Bootstrap-augmented training (August 2026). Generate synthetic training paths by block-bootstrap resampling of historical return sequences (Politis and Romano, 1994), to expand the effective training set by an order of magnitude without leaving the empirical return distribution.",
@@ -2130,21 +2340,21 @@ def build() -> Path:
     add_para(doc, "End-to-end reproduction of every artefact in this dissertation. "
                   "The --tickers fiyins_portfolio flag resolves to the named group "
                   "in experiments/configs/dissertation_protocol.json and materialises "
-                  "the 70-ticker test universe used in §5.5 and Appendix B.")
+                  "the 70-ticker test universe used in Section 5.5 and Appendix B.")
     code = (
         "python3 -m venv venv && source venv/bin/activate\n"
         "pip install -r requirements.txt\n"
-        "# Phase-1 SPY headline (Chapter 5 §5.3, §5.4):\n"
+        "# Phase-1 SPY headline (Chapter 5 Section 5.3, Section 5.4):\n"
         "python experiments/run_baseline.py\n"
         "python experiments/run_probabilistic_agent.py\n"
         "python experiments/run_benchmarks.py\n"
         "python experiments/run_rule_baselines.py\n"
-        "# Phase-1 70-ticker test universe (Chapter 5 §5.5, Appendix B):\n"
+        "# Phase-1 70-ticker test universe (Chapter 5 Section 5.5, Appendix B):\n"
         "python experiments/run_benchmarks.py     --tickers fiyins_portfolio --tag fiyins70\n"
         "python experiments/run_rule_baselines.py --tickers fiyins_portfolio --tag fiyins70\n"
         "python experiments/run_baseline.py       --tickers fiyins_portfolio --tag fiyins70\n"
         "python experiments/run_probabilistic_agent.py --tickers fiyins_portfolio --tag fiyins70\n"
-        "# Walk-forward subset (§6.4):\n"
+        "# Walk-forward subset (Section 6.4):\n"
         "python experiments/run_walk_forward.py --tickers SPY,QQQ,XLK,XLF\n"
         "# Build the dissertation document:\n"
         "python reports/build_main_dissertation_docx.py"
@@ -2168,8 +2378,8 @@ def build() -> Path:
         "subset selects ten rows from this list to illustrate the heterogeneity.",
     )
 
-    # Build the full per-ticker table from the same maps used in §5.5.
-    # If the maps are unavailable (the §5.5 conditional did not run), skip.
+    # Build the full per-ticker table from the same maps used in Section 5.5.
+    # If the maps are unavailable (the Section 5.5 conditional did not run), skip.
     try:
         all_tickers = sorted(bh_final_map.keys())
     except NameError:

@@ -9,11 +9,11 @@
 ## Data and Protocol
 
 - Source: Yahoo Finance daily adjusted close via `yfinance`.
-- Test universe: a 70-ticker diversified-equity universe materialised as the named group `fiyins_portfolio` in `experiments/configs/dissertation_protocol.json`, fixed and reproducible. Single-ticker SPY case study is presented separately in §5.3 / §5.4 as a representative deep-dive before the 70-ticker robustness evidence in §5.5.
+- Test universe: a 70-ticker diversified-equity universe materialised as the named group `fiyins_portfolio` in `experiments/configs/dissertation_protocol.json`, fixed and reproducible. Single-ticker SPY case study is presented separately in Section 5.3 / Section 5.4 as a representative deep-dive before the 70-ticker robustness evidence in Section 5.5.
 - Splits and walk-forward folds: pinned in `experiments/configs/dissertation_protocol.json`; four walk-forward folds covering 2018–2025 are configured.
 - Benchmark checks: passive buy-and-hold, all-cash, and manual trailing stop-loss (5 % and 10 % variants with 20/50-day moving-average re-entry) on the same protocol.
 
-## Single-Ticker SPY Headline (§5.3 / §5.4, Test Window 2022–2025)
+## Single-Ticker SPY Headline (Section 5.3 / Section 5.4, Test Window 2022–2025)
 
 | Agent | Final value | Sharpe | Max DD | Terminal preservation | Path preservation (1 − MDD) |
 |---|---:|---:|---:|---:|---:|
@@ -25,7 +25,7 @@
 
 Reading the table: the probabilistic PPO has the highest Sharpe, the highest terminal value, and the smallest path drawdown of any policy that participates in market upside enough to beat cash. The manually-tuned trailing-stop comparators preserve terminal capital adequately but incur path drawdowns *larger* than buy-and-hold's, because reactive stops fire after the drawdown has begun and the moving-average re-entry rule is slow. The baseline PPO never compounds enough to test the preservation constraint in earnest.
 
-## 70-Ticker Test Universe Aggregate (§5.5, Test Window 2022–2025)
+## 70-Ticker Test Universe Aggregate (Section 5.5, Test Window 2022–2025)
 
 The four-agent comparison run across the entire 70-ticker test universe at the Phase-1 budget (3 seeds × 10 000 PPO timesteps per cell):
 
@@ -43,17 +43,17 @@ Headline findings — these are the strongest empirical numbers the project carr
 - Cost: ≈ 5 % give-up in mean terminal value vs buy-and-hold, in exchange for the 39 % relative reduction in mean drawdown above. This is exactly the trade institutional risk officers run.
 - Where the agent loses on terminal value (45 of 70 tickers — but still wins on drawdown), the losses cluster in two diagnosable regimes: persistent low-uncertainty bull-market trends in single names (NVDA, AVGO, LLY) where the uncertainty-guard's caution costs the right tail; and very-low-drawdown defensives (JNJ, MCD, SCHD, GLD) where there is essentially nothing for a drawdown overlay to add. Sector-aware uncertainty-quantile calibration is the targeted Phase-2 fix.
 
-## Walk-Forward (Out-of-Time) Subset Evidence (§6.4)
+## Walk-Forward (Out-of-Time) Subset Evidence (Section 6.4)
 
 A four-ticker × four-fold × three-seed walk-forward grid was run on CPU (96 individual PPO trainings) over a CPU-feasible subset of the universe (SPY, QQQ, XLK, XLF) and the four protocol folds (wf_2018_2019, wf_2020_2021, wf_2022_2023, wf_2024_2025). Each fold trains on a strictly earlier window and evaluates on a strictly later window. **The probabilistic agent's median terminal value beats the baseline PPO on 16 of 16 (ticker, fold) cells**, with a median terminal-value gap of $314 000 over the two-year evaluation windows. The full 70-ticker × 4-fold × 10-seed × 50k-step walk-forward grid is the Phase-2 GPU deliverable.
 
-## Extended Seed-Stability Check on Representative Sub-Universe (§5.5.1)
+## Extended Seed-Stability Check on Representative Sub-Universe (Section 5.5.1)
 
 A representative eight-ticker sub-universe (SPY, QQQ, IWM, XLK, XLF, XLE, XLV, XLU) was re-run at the extended budget (10 seeds × 50 000 PPO timesteps per cell, 80 individual trainings) on CPU. **The probabilistic agent beats passive buy-and-hold on 7 of 8 tickers** at the extended budget, against 4 of 8 at the Phase-1 budget on the same sub-universe — i.e., several of the apparent Phase-1 losses were artefacts of the under-trained budget rather than structural weaknesses of the architecture. Median Sharpe is positive on every ticker in the sub-universe at the extended budget. This is the dissertation's direct CPU-feasible answer to the previous-meeting question on whether the model is properly trained.
 
 ## Companion Document
 
-- `reports/generated/exports/Fiyins_Dissertation.docx` is a companion document written for a non-quantitative reader (plain English, with finance context where it matters). It tells the same 70-ticker story as §5.5 and Appendix B of `Main_Dissertation_Draft.docx`, but in a register a finance practitioner can read in one sitting. The two documents are deliberately kept separate so that the academic dissertation can be evaluated on the formal protocol numbers alone, while the companion document carries the human-readable interpretation, full per-ticker commentary and visualisations.
+- `reports/generated/exports/Fiyins_Dissertation.docx` is a companion document written for a non-quantitative reader (plain English, with finance context where it matters). It tells the same 70-ticker story as Section 5.5 and Appendix B of `Main_Dissertation_Draft.docx`, but in a register a finance practitioner can read in one sitting. The two documents are deliberately kept separate so that the academic dissertation can be evaluated on the formal protocol numbers alone, while the companion document carries the human-readable interpretation, full per-ticker commentary and visualisations.
 
 ## Interpretation (For Discussion)
 
@@ -72,15 +72,15 @@ A representative eight-ticker sub-universe (SPY, QQQ, IWM, XLK, XLF, XLE, XLV, X
   - `experiments/run_walk_forward.py`
   - `experiments/run_extended_grid.py` (Phase-2 orchestrator for Colab)
 - Documents:
-  - `reports/generated/exports/Main_Dissertation_Draft.docx` (academic dissertation with §5.5 70-ticker robustness table + Appendix B full per-ticker table)
+  - `reports/generated/exports/Main_Dissertation_Draft.docx` (academic dissertation with Section 5.5 70-ticker robustness table + Appendix B full per-ticker table)
   - `reports/generated/exports/InterimReview.docx` (formal interim review form)
   - `reports/generated/exports/Fiyins_Dissertation.docx` (plain-English companion to the 70-ticker evidence)
 - Notebook: `notebooks/extended_grid_colab.ipynb` for the Phase-2 GPU heavy lifting.
 
 ## Next Tests Before Submission (1 Sep 2026)
 
-- **April 2026 (complete)**: 70-ticker × 3-seed × 10k-step Phase-1 grid on CPU (840 individual training runs); four-fold walk-forward grid on a four-ticker subset on CPU (96 trainings); extended seed-stability check (8 tickers × 10 seeds × 50k steps = 80 trainings) on CPU. All finished. These populate §5.5, §5.5.1, Appendix B and §6.4 of `Main_Dissertation_Draft.docx`.
-- **May 2026 (Colab)**: full Phase-2 extended grid on the 70-ticker test universe (10 seeds × 50 000 steps × 4 walk-forward folds × 16 bootstrap-augmented training paths) on Colab T4 GPU via `notebooks/extended_grid_colab.ipynb`. Replaces the 3-seed × 10k-step Phase-1 numbers in §5.5 and Appendix B with median + IQR across the full grid.
+- **April 2026 (complete)**: 70-ticker × 3-seed × 10k-step Phase-1 grid on CPU (840 individual training runs); four-fold walk-forward grid on a four-ticker subset on CPU (96 trainings); extended seed-stability check (8 tickers × 10 seeds × 50k steps = 80 trainings) on CPU. All finished. These populate Section 5.5, Section 5.5.1, Appendix B and Section 6.4 of `Main_Dissertation_Draft.docx`.
+- **May 2026 (Colab)**: full Phase-2 extended grid on the 70-ticker test universe (10 seeds × 50 000 steps × 4 walk-forward folds × 16 bootstrap-augmented training paths) on Colab T4 GPU via `notebooks/extended_grid_colab.ipynb`. Replaces the 3-seed × 10k-step Phase-1 numbers in Section 5.5 and Appendix B with median + IQR across the full grid.
 - **June 2026**: sector-aware uncertainty-quantile calibration (per-sector or per-regime threshold instead of single global 0.80); ablation across {state-feature only, guard only, both}.
 - **July 2026**: sensitivity sweep on the uncertainty threshold, minimum scale and max trade fraction; block-bootstrap data augmentation across the universe.
 - **August 2026**: paper-trading shadow run via Alpaca with at least two weeks of live PnL reported alongside the backtest; event-window case studies (COVID 2020, Ukraine-war onset 2022).

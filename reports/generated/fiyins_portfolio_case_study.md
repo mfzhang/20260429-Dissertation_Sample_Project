@@ -167,7 +167,7 @@ on shallow corrections and missed the recovery.
 Four observations.
 
 **One — the agent does what the dissertation asks it to do.** The dissertation's 
-formal objective (§3.1.5) is *maximise risk-adjusted return subject to a 
+formal objective (Section 3.1.5) is *maximise risk-adjusted return subject to a 
 drawdown constraint*. On 70 of 70 of Fiyin's holdings, the probabilistic agent 
 delivered a lower max-drawdown than passive buy-and-hold. The average reduction 
 was 14 percentage points: a B&H portfolio that drew down 37% on average 
@@ -179,7 +179,7 @@ the book: $2,099,838 for buy-and-hold vs $1,998,817 for the
 agent — a 4.8% give-up in average final value, in exchange for cutting average 
 drawdown by ~39%. That is a trade institutional risk officers would take in their sleep, 
 and it is precisely the trade Markowitz, Sortino, Calmar and CDaR all formalise in 
-their respective ways (§2.1 of the dissertation).
+their respective ways (Section 2.1 of the dissertation).
 
 **Three — the agent beats the manual stop-loss alternative cleanly.** 
 Probabilistic vs rule-based 5% stop: 61 of 70 on terminal value; 
@@ -194,7 +194,7 @@ tickers where probabilistic loses to buy-and-hold on terminal value are dominate
 uncertainty-guard incorrectly flags strong, persistent trends as risky and trims 
 position size) and (b) very-low-drawdown defensive holdings (JNJ, MCD, SCHD — 
 where there is nothing for a drawdown-control overlay to add but the trading cost 
-of activity itself eats a few basis points). The dissertation's §6.3 names these 
+of activity itself eats a few basis points). The dissertation's Section 6.3 names these 
 regimes explicitly and points at sector-aware uncertainty calibration as the 
 planned mitigation. None of these losses are mysterious; they are diagnosed.
 
@@ -204,7 +204,7 @@ tickers where probabilistic loses to buy-and-hold are dominated by
 where the uncertainty-guard incorrectly flags strong trends as risky) and 
 (b) very-low-drawdown defensive holdings (JNJ, MCD, SCHD — where 
 there is nothing for a drawdown-control overlay to add). The dissertation's 
-§6.3 names these regimes explicitly and points at sector-aware uncertainty 
+Section 6.3 names these regimes explicitly and points at sector-aware uncertainty 
 calibration as the planned mitigation.
 
 
@@ -214,7 +214,7 @@ calibration as the planned mitigation.
 
 - **Selection bias.** These tickers were chosen by Fiyin to invest in, presumably because they were expected to perform well. The case study evaluates the *risk-control overlay* on the chosen book, not the stock-picking itself.
 - **Three seeds, 10k PPO timesteps.** The headline RL numbers are means across 3 seeds at 10,000 training steps, consistent with the dissertation's Phase-1 budget. Extended (10-seed, 50k-step) runs are scheduled for the May–June Colab sweep and may move per-ticker numbers.
-- **Equal-weight aggregation.** The portfolio-level row in §2 is an unweighted mean across tickers, not a true rebalanced equal-weight portfolio. Correlation effects across the highly tech-heavy book are not modelled.
+- **Equal-weight aggregation.** The portfolio-level row in Section 2 is an unweighted mean across tickers, not a true rebalanced equal-weight portfolio. Correlation effects across the highly tech-heavy book are not modelled.
 - **ETF overlap.** VTI ⊃ VOO ≈ SPY; SCHG ≈ QQQ; IJR ≈ small caps. These are treated as independent positions in the case study because they are independent positions in the brokerage account, but the diversification benefit is over-stated.
 - **Single-asset environment.** The probabilistic agent runs on each ticker independently; a true multi-asset version that watches the running peak of the *portfolio* is the natural next iteration.
 - **Test window.** All tickers are evaluated on 2022–2025 regardless of when they were actually bought, for apples-to-apples comparison.

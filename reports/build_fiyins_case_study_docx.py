@@ -331,7 +331,7 @@ def build() -> Path:
     add_heading(doc, "6. What this tells us, in plain English", 1)
     add_heading(doc, "6.1 The agent does what the dissertation asks it to do", 2)
     add_para(doc, (
-        "The dissertation's formal objective (§3.1.5) is to maximise risk-adjusted return subject to a "
+        "The dissertation's formal objective (Section 3.1.5) is to maximise risk-adjusted return subject to a "
         f"drawdown constraint. On {dd_wins} of {dd_total} of Fiyin's holdings, the probabilistic agent delivered "
         f"a lower max-drawdown than passive buy-and-hold. The average reduction was {avg_dd_reduction:.0f} percentage "
         f"points: a buy-and-hold portfolio that drew down {agg['bh_mdd_mean']*100:.0f}% on average was instead drawn down "
@@ -344,7 +344,7 @@ def build() -> Path:
         f"{fmt_money(agg['prob_final_mean'])} for the agent — a {terminal_giveup_pct:.1f}% give-up in average final value, "
         f"in exchange for cutting average drawdown by ~{dd_relative_reduction_pct:.0f}%. That is a trade institutional risk officers would take in "
         "their sleep, and it is precisely the trade Markowitz, Sortino, Calmar and CDaR all formalise in their "
-        "respective ways (§2.1 of the dissertation)."
+        "respective ways (Section 2.1 of the dissertation)."
     ))
     add_heading(doc, "6.3 The agent beats the manual stop-loss alternative cleanly", 2)
     win_rate_r5_pct = (agg["prob_wins_vs_r5"] / agg["n_tickers"]) * 100 if agg["n_tickers"] else 0.0
@@ -361,7 +361,7 @@ def build() -> Path:
         "(a) sustained, low-uncertainty bull markets (NVDA, AVGO, LLY, PLTR — where the uncertainty-guard "
         "incorrectly flags strong, persistent trends as risky and trims position size), and (b) very-low-drawdown "
         "defensive holdings (JNJ, MCD, SCHD — where there is nothing for a drawdown-control overlay to add but "
-        "the trading cost of activity itself eats a few basis points). The dissertation's §6.3 names these regimes "
+        "the trading cost of activity itself eats a few basis points). The dissertation's Section 6.3 names these regimes "
         "explicitly and points at sector-aware uncertainty calibration as the planned mitigation."
     ))
 
@@ -375,7 +375,7 @@ def build() -> Path:
         "Three seeds, 10k PPO timesteps: the headline RL numbers are means across 3 seeds at 10,000 training steps, "
         "consistent with the dissertation's Phase-1 budget. Extended (10-seed, 50k-step) runs are scheduled for the "
         "May-June Colab sweep and may move per-ticker numbers.",
-        "Equal-weight aggregation: the portfolio-level row in §2 is an unweighted mean across tickers, not a true "
+        "Equal-weight aggregation: the portfolio-level row in Section 2 is an unweighted mean across tickers, not a true "
         "rebalanced equal-weight portfolio. Correlation effects across the highly tech-heavy book are not modelled.",
         "ETF overlap: VTI ⊃ VOO ≈ SPY; SCHG ≈ QQQ; IJR ≈ small caps. These are treated as independent positions in "
         "the case study because they are independent positions in the brokerage account, but the diversification "

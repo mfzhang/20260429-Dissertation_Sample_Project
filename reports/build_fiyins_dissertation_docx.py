@@ -436,7 +436,7 @@ def build() -> Path:
         "aside when the forecast becomes uncertain and the running portfolio value is approaching 95% of "
         "its prior all-time high. Never accept a peak-to-trough drawdown deeper than 5% on the running "
         "portfolio if it can be helped, but do not become a permanent cash position either. In the "
-        "language of the academic dissertation (§3.1.5), this is a constrained optimisation problem: "
+        "language of the academic dissertation (Section 3.1.5), this is a constrained optimisation problem: "
         "maximise the expected risk-adjusted return subject to a 95% high-watermark drawdown constraint. "
         "Translated into ordinary English, that's exactly what an institutional risk officer, an "
         "endowment manager, or an attentive private investor would ask their book to do."
@@ -499,7 +499,7 @@ def build() -> Path:
         f"All numbers below are unweighted means across the {agg['n_tickers']}-ticker book on the "
         f"2022–2025 test window, $1,000,000 of starting capital per ticker, three random seeds for the "
         f"two reinforcement-learning agents (median + IQR seed-stability bands at the extended budget "
-        f"are reported separately in §10.2)."
+        f"are reported separately in Section 10.2)."
     ))
     add_headline_table(doc, agg)
     cap_paragraph = doc.add_paragraph()
@@ -645,11 +645,11 @@ def build() -> Path:
         "The agent reliably outperforms on stocks and ETFs that experienced a real, deep drawdown during "
         "the test window, and reliably underperforms on stocks and ETFs that ran a strong, persistent, "
         "low-volatility uptrend with no meaningful drawdown. That is exactly the trade-off the dissertation "
-        "predicts in §6.3: a drawdown-control overlay can only earn its keep when there is a drawdown to "
+        "predicts in Section 6.3: a drawdown-control overlay can only earn its keep when there is a drawdown to "
         "control. The mitigation — sector-aware uncertainty calibration so the overlay learns that some "
         "regimes (a Federal Reserve hike cycle, an obvious sector rotation) genuinely warrant caution while "
         "others (a textbook bull market in mega-cap tech) do not — is scheduled work for the full-time "
-        "phase, and is described in §10.4 below."
+        "phase, and is described in Section 10.4 below."
     ))
 
     page_break(doc)
@@ -662,7 +662,7 @@ def build() -> Path:
     add_para(doc, (
         "Honest answer: no, not yet. The case study is a backtest. The 2022–2025 test window contains "
         "exactly one bear market and exactly one strong bull, and the agent's training history was the "
-        "pre-2022 period. The walk-forward evidence in §6.4 of the academic dissertation is reassuring "
+        "pre-2022 period. The walk-forward evidence in Section 6.4 of the academic dissertation is reassuring "
         "(the agent beat the baseline on all 16 (ticker, fold) cells of the four-fold out-of-time grid) "
         "but reassuring is not the same as live-tested. The plan, scheduled for August 2026, is to run "
         "the agent in shadow mode on a paper-trading account via Alpaca and report the live PnL alongside "
@@ -703,7 +703,7 @@ def build() -> Path:
         "academic dissertation deliberately uses a neutral eight-ticker basket precisely because it is "
         "free of this bias.",
         "Three seeds, 10,000 PPO timesteps. The Phase-1 budget. The 10-seed × 50,000-step extended "
-        "budget on the eight-ticker basket (§5.5.1 of the academic dissertation) is already complete and "
+        "budget on the eight-ticker basket (Section 5.5.1 of the academic dissertation) is already complete and "
         "shows the agent's headline picture improves at the extended budget; a similar 70-ticker × "
         "10-seed × 50,000-step extended grid is scheduled on Colab GPU and will refresh the case-study "
         "numbers in this document with median + IQR bands.",
@@ -715,7 +715,7 @@ def build() -> Path:
         "diversification benefit is over-stated by the equal-weight assumption.",
         "Single-asset environment. The probabilistic agent runs on each ticker in isolation; a true "
         "multi-asset version that watches the running peak of the whole portfolio is the natural next "
-        "iteration and is described in §7.2 (Future work) of the academic dissertation.",
+        "iteration and is described in Section 7.2 (Future work) of the academic dissertation.",
         "Test window. All tickers are evaluated on 2022-01-01 to 2025-12-31 regardless of when each was "
         "actually purchased. This matches the protocol of the academic dissertation and supports apples-"
         "to-apples comparison; it does not match the actual entry timing of the live account.",
@@ -737,7 +737,7 @@ def build() -> Path:
         "script (experiments/run_extended_grid.py) and the Colab notebook (notebooks/extended_grid_colab.ipynb) "
         "are both already written; the grid replaces the 3-seed × 10k-step Phase-1 numbers in this "
         "document with median + inter-quartile range bands across the full grid.",
-        "10.2 Sector-aware uncertainty calibration (early June 2026). The losses in §7.2 above are "
+        "10.2 Sector-aware uncertainty calibration (early June 2026). The losses in Section 7.2 above are "
         "concentrated on low-uncertainty trend stocks. The current uncertainty estimator is a single "
         "global model. A sector-aware calibration — separate quantile thresholds for technology, "
         "financials, healthcare, defensives, commodities — should remove most of those losses without "

@@ -225,7 +225,7 @@ The two new rule-based comparators (5 % and 10 % trailing stop-losses with a
 20/50-day moving-average crossover for re-entry) live in
 `experiments/run_rule_baselines.py`.
 
-### 70-ticker test universe — Phase-1 robustness (§5.5)
+### 70-ticker test universe — Phase-1 robustness (Section 5.5)
 
 The Phase-1 robustness study runs the same four-agent comparison on a 70-ticker
 diversified-equity test universe — 41 single-name US large-cap equities (technology,

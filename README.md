@@ -27,8 +27,8 @@ The interim review draft (Surrey form) lives at
 
 ## Generated artifacts (under `reports/generated/exports/`)
 
-- `Main_Dissertation_Draft.docx` — the **academic** Master's dissertation. Headline robustness evidence is the four-agent comparison on a 70-ticker diversified-equity test universe (§5.5) with the full per-ticker table in Appendix B; supplementary studies are an extended seed-stability check on a representative eight-ticker sub-universe (§5.5.1) and a four-fold walk-forward grid on a four-ticker subset (§6.4). Title page, abstract, 7 chapters, references, two appendices.
-- `Fiyins_Dissertation.docx` — the **plain-English companion**. Same 70-ticker evidence as §5.5 / Appendix B of the academic dissertation, but written for a non-quantitative reader with finance context, full per-ticker commentary and visualisations. Cover, executive summary, 10 chapters, reproducibility appendix.
+- `Main_Dissertation_Draft.docx` — the **academic** Master's dissertation. Headline robustness evidence is the four-agent comparison on a 70-ticker diversified-equity test universe (Section 5.5) with the full per-ticker table in Appendix B; supplementary studies are an extended seed-stability check on a representative eight-ticker sub-universe (Section 5.5.1) and a four-fold walk-forward grid on a four-ticker subset (Section 6.4). Title page, abstract, 7 chapters, references, two appendices.
+- `Fiyins_Dissertation.docx` — the **plain-English companion**. Same 70-ticker evidence as Section 5.5 / Appendix B of the academic dissertation, but written for a non-quantitative reader with finance context, full per-ticker commentary and visualisations. Cover, executive summary, 10 chapters, reproducibility appendix.
 - `InterimReview.docx` — the formal Surrey Interim Review form.
 - `Dissertation_Walkthrough.pdf` — fully-rendered PDF of the supervisor walkthrough notebook (with embedded outputs, tables and plots).
 - `equations/` — individual PNGs for every equation in the docx.
@@ -136,7 +136,7 @@ materialised as the named group `fiyins_portfolio` under `data.named_groups` in
 equities (technology, payments and financial services, healthcare, consumer,
 industrials) plus 29 ETFs (broad-market indices, sector SPDRs, dividend,
 thematic, commodities). The runner CLI also still accepts the legacy `basket`
-group (eight-ticker sub-universe used for the §5.5.1 extended seed-stability
+group (eight-ticker sub-universe used for the Section 5.5.1 extended seed-stability
 check) and arbitrary comma-separated ticker lists.
 
 ### Two documents — academic dissertation and plain-English companion
@@ -146,8 +146,8 @@ for the heaviest experiments:
 
 | File                                                             | Scope                                                                                                          | Built by |
 |------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|----------|
-| `reports/generated/exports/Main_Dissertation_Draft.docx`         | The academic EEEM004 dissertation. 70-ticker test universe headline (§5.5 + Appendix B), eight-ticker sub-universe extended seed-stability check (§5.5.1), four-ticker walk-forward grid (§6.4). | `python reports/build_main_dissertation_docx.py` |
-| `reports/generated/exports/Fiyins_Dissertation.docx`             | Plain-English companion to the 70-ticker evidence. Same numbers as §5.5 / Appendix B of the academic dissertation, but written for a non-quantitative reader with finance context, full per-ticker commentary and visualisations. | `python reports/build_fiyins_dissertation_docx.py` |
+| `reports/generated/exports/Main_Dissertation_Draft.docx`         | The academic EEEM004 dissertation. 70-ticker test universe headline (Section 5.5 + Appendix B), eight-ticker sub-universe extended seed-stability check (Section 5.5.1), four-ticker walk-forward grid (Section 6.4). | `python reports/build_main_dissertation_docx.py` |
+| `reports/generated/exports/Fiyins_Dissertation.docx`             | Plain-English companion to the 70-ticker evidence. Same numbers as Section 5.5 / Appendix B of the academic dissertation, but written for a non-quantitative reader with finance context, full per-ticker commentary and visualisations. | `python reports/build_fiyins_dissertation_docx.py` |
 | `notebooks/extended_grid_colab.ipynb`                            | The heaviest experiments — full 70-ticker × 10-seed × 50k-step extended grid + 4-fold walk-forward + bootstrap. *GPU-only.* | Open in Colab → *Run all*. |
 
 ### Phase-1 (CPU) pipeline — runs on a laptop in 25–35 minutes
@@ -194,10 +194,10 @@ and offers a one-click zip download of every output.
 
 | Section in the notebook                                          | Experiment                                                                                                | Approx wall-time on T4 |
 |------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|------------------------|
-| §3 — heaviest run                                                 | 70-ticker × 10-seed × 50 000-PPO-step extended grid + 32-path stationary block bootstrap                  | 5–7 hours              |
-| §4 — walk-forward at extended budget                              | 4-ticker × 4-fold × 10-seed × 50 000-step walk-forward (out-of-time evaluation, CPU-feasible subset extended to 10 seeds) | 3–4 hours              |
-| §5 — *(A100 only)* full 70-ticker walk-forward                    | 70-ticker × 4-fold × 10-seed × 50 000-step × 16-bootstrap-path × 2-agent grid                              | 12–14 hours on A100    |
-| §6 — rebuild `Main_Dissertation_Draft.docx` + `Fiyins_Dissertation.docx`| Aggregates every result JSON and refreshes both Word documents with extended-budget median + IQR bands.   | < 1 minute             |
+| Section 3 — heaviest run                                                 | 70-ticker × 10-seed × 50 000-PPO-step extended grid + 32-path stationary block bootstrap                  | 5–7 hours              |
+| Section 4 — walk-forward at extended budget                              | 4-ticker × 4-fold × 10-seed × 50 000-step walk-forward (out-of-time evaluation, CPU-feasible subset extended to 10 seeds) | 3–4 hours              |
+| Section 5 — *(A100 only)* full 70-ticker walk-forward                    | 70-ticker × 4-fold × 10-seed × 50 000-step × 16-bootstrap-path × 2-agent grid                              | 12–14 hours on A100    |
+| Section 6 — rebuild `Main_Dissertation_Draft.docx` + `Fiyins_Dissertation.docx`| Aggregates every result JSON and refreshes both Word documents with extended-budget median + IQR bands.   | < 1 minute             |
 
 For local Colab launch:
 
